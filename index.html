@@ -324,6 +324,9 @@
   var tapBtn = document.getElementById('tap');
   function onTap(ev){
     ev.preventDefault();
+    // Only the first finger counts: extra fingers touching at the same time are ignored,
+    // so tapping with 2-3 fingers at once is still 1 tap.
+    if (ev.isPrimary === false) return;
     if (phase() !== 'running') return;
     var now = performance.now();
     while (recent.length && now - recent[0] > 1000) recent.shift();
@@ -388,10 +391,16 @@
   }
 
   // ---------------- boot ----------------
-  if (lang && T[lang]) {
-    buildDepts();
-    if (deptId && deptById(deptId) && myName) enterPlay(); else show('pDept');
-  } else { show('pLang'); }
+  // Always start from the language page so people can pick language / name / department again.
+  // Exception: the page was refreshed in the middle of a race this phone is already playing → resume.
+  show('pLang');
+  if (lang && T[lang] && deptId && deptById(deptId) && myName && myRound && count > 0) {
+    backend.getGame().then(function(g){
+      if (g && g.state === 'running' && g.round === myRound && document.getElementById('pLang').classList.contains('active')) {
+        game = g; buildDepts(); enterPlay();
+      }
+    }).catch(function(){});
+  }
   requestAnimationFrame(render);
 })();
 </script>
