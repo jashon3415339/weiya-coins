@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>全場手機賽馬｜大螢幕</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{--gold:#ffd25e;--gold2:#f0a500;--text:#fff8ec;--muted:rgba(255,248,236,.65)}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden}
+  body{
+    font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",-apple-system,"Segoe UI",Roboto,sans-serif;
+    color:var(--text);
+    background:radial-gradient(ellipse at 50% -10%, #c21d26 0%, #7a0d12 45%, #250205 100%);
+    display:flex;flex-direction:column;
+  }
+  header{display:flex;align-items:center;justify-content:space-between;padding:1.6vh 2.5vw 0}
+  .title{font-size:4.2vh;font-weight:900;letter-spacing:.2vh;text-shadow:0 .4vh 0 rgba(0,0,0,.35)}
+  .title small{display:block;font-size:1.9vh;font-weight:500;color:var(--muted);letter-spacing:0}
+  .clock{text-align:right}
+  .clock .num{font-size:10vh;font-weight:900;line-height:1;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 .5vh 0 rgba(0,0,0,.4)}
+  .clock .lab{font-size:2vh;color:var(--muted)}
+  main{flex:1;display:flex;gap:2vw;padding:1.5vh 2.5vw 2vh;min-height:0}
+  .track{flex:1;display:flex;flex-direction:column;gap:1vh;min-width:0;background:rgba(0,0,0,.18);border-radius:2vh;padding:1.6vh 1.4vw;position:relative}
+  .lane{flex:1;display:flex;align-items:center;gap:1vw;min-height:0}
+  .lname{width:13vw;flex:none;text-align:right;line-height:1.1}
+  .lname b{display:block;font-size:3.4vh}
+  .lname span{font-size:1.5vh;color:var(--muted)}
+  .road{flex:1;height:100%;position:relative;border-radius:1.2vh;overflow:visible;
+        background:repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 4%, rgba(255,255,255,.02) 4% 8%);
+        border-left:.5vh solid rgba(255,255,255,.5)}
+  .road::after{content:"";position:absolute;right:0;top:-.5vh;bottom:-.5vh;width:1.2vh;
+        background:repeating-linear-gradient(0deg,#fff 0 1vh,#111 1vh 2vh);border-radius:.3vh;opacity:.85}
+  .rail{position:absolute;left:7vh;right:1.2vh;top:0;bottom:0}
+  .fill{position:absolute;left:-6.5vh;top:24%;bottom:24%;border-radius:1vh;opacity:.45;width:0}
+  .horse{position:absolute;top:50%;left:0;transform:translate(-100%,-50%)}
+  .horse .emo{font-size:6.2vh;display:inline-block;transform:scaleX(-1);filter:drop-shadow(0 .4vh .3vh rgba(0,0,0,.45))}
+  .running .horse .emo{animation:gallop .28s infinite alternate ease-in-out}
+  @keyframes gallop{from{transform:scaleX(-1) translateY(0) rotate(0)}to{transform:scaleX(-1) translateY(-.8vh) rotate(-6deg)}}
+  .lscore{width:11vw;flex:none;text-align:left;line-height:1.05}
+  .lscore b{display:block;font-size:4.2vh;font-variant-numeric:tabular-nums}
+  .lscore span{font-size:1.6vh;color:var(--muted)}
+  .rank1 .lscore b{color:var(--gold)}
+  .rank1 .lname b::before{content:"👑 ";font-size:.8em}
+  aside{width:24vw;flex:none;display:flex;flex-direction:column;gap:1.5vh}
+  .card{background:rgba(0,0,0,.25);border-radius:2vh;padding:2vh 1.2vw;text-align:center}
+  .qrbox{background:#fff;border-radius:1.4vh;padding:1.4vh;display:inline-block}
+  #qr img,#qr canvas{width:30vh !important;height:30vh !important;display:block}
+  .scan{font-size:3vh;font-weight:900;margin-top:1.2vh}
+  .scan small{display:block;font-size:1.7vh;font-weight:500;color:var(--muted);margin-top:.3vh}
+  .url{font-size:1.4vh;color:var(--muted);word-break:break-all;margin-top:.8vh}
+  .stat{display:flex;justify-content:space-around}
+  .stat div{font-size:1.8vh;color:var(--muted)}
+  .stat b{display:block;font-size:4.4vh;color:var(--text);font-variant-numeric:tabular-nums}
+  #hostbar{position:fixed;left:50%;top:1.6vh;white-space:nowrap;transform:translateX(-50%);display:flex;gap:.8vw;align-items:center;
+           background:rgba(0,0,0,.55);padding:.8vh 1vw;border-radius:99px;opacity:.15;transition:opacity .2s;z-index:20}
+  #hostbar:hover,#hostbar.pinned{opacity:1}
+  #hostbar button{font-family:inherit;font-size:1.8vh;white-space:nowrap;font-weight:800;border:none;border-radius:99px;padding:.9vh 1.6vw;cursor:pointer}
+  .bStart{background:linear-gradient(180deg,#5ef08a,#18a84a);color:#04310f}
+  .bReset{background:#eee;color:#333}
+  .bGhost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.4) !important}
+  #hostbar .who{font-size:1.5vh;color:var(--muted);padding:0 .6vw}
+  .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;z-index:10;
+           background:radial-gradient(circle, rgba(0,0,0,.35), rgba(0,0,0,.75))}
+  .overlay.show{display:flex}
+  #cdNum{font-size:40vh;font-weight:900;color:var(--gold);text-shadow:0 2vh 0 rgba(0,0,0,.4);animation:pop .9s ease-out infinite}
+  @keyframes pop{0%{transform:scale(1.4);opacity:0}25%{transform:scale(1);opacity:1}100%{transform:scale(.9);opacity:.85}}
+  .champ{text-align:center;animation:rise .7s ease-out}
+  @keyframes rise{from{transform:translateY(6vh) scale(.8);opacity:0}to{transform:none;opacity:1}}
+  .champ .trophy{font-size:20vh;line-height:1}
+  .champ .lab{font-size:5vh;color:var(--gold);font-weight:900;letter-spacing:1vh}
+  .champ .name{font-size:13vh;font-weight:900;text-shadow:0 1.2vh 0 rgba(0,0,0,.4);line-height:1.15}
+  .champ .sub{font-size:3vh;color:var(--muted)}
+  .champ .score{font-size:5vh;font-weight:800;margin-top:1vh}
+  /* ===== 財神撒金幣 theme ===== */
+  .track.coins{flex-direction:column;gap:0;padding:1.2vh 1vw 1vh;overflow:hidden}
+  .banner{text-align:center;font-size:3.6vh;font-weight:900;color:var(--gold);letter-spacing:.4vh;
+          text-shadow:0 .4vh 0 rgba(0,0,0,.35);padding:.2vh 0 .6vh;position:relative}
+  .banner .lan{display:inline-block;animation:swing 2.4s ease-in-out infinite;transform-origin:50% 0}
+  .banner .lan:last-child{animation-delay:-1.2s}
+  @keyframes swing{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+  .cols{flex:1;display:flex;gap:1vw;min-height:0;position:relative}
+  .goal{position:absolute;left:0;right:0;top:4.5vh;border-top:.35vh dashed rgba(255,210,94,.8);z-index:1;pointer-events:none}
+  .goal span{position:absolute;right:0;top:-3vh;font-size:1.7vh;color:var(--gold);font-weight:700}
+  .ccol{flex:1;display:flex;flex-direction:column;min-width:0}
+  .cstage{flex:1;position:relative;min-height:0}
+  .stack{position:absolute;left:18%;right:18%;bottom:0;height:0;border-radius:.6vh .6vh 0 0;
+         background:repeating-linear-gradient(0deg,#9c6a00 0 .35vh,#ffd25e .35vh 1.5vh,#f3b21c 1.5vh 1.85vh);
+         box-shadow:inset .8vh 0 1vh rgba(255,255,255,.35),inset -.8vh 0 1vh rgba(0,0,0,.25),0 0 2vh rgba(255,210,94,.25)}
+  .stack::before{content:"";position:absolute;left:0;right:0;top:-1vh;height:2vh;border-radius:50%;
+         background:radial-gradient(ellipse at 50% 40%,#fff3c4,#ffd25e 55%,#d99a00);border:.25vh solid #b37a00}
+  .cval{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:3.6vh;font-weight:900;font-variant-numeric:tabular-nums;
+        text-shadow:0 .3vh .4vh rgba(0,0,0,.6);transform:translateY(-2.2vh);z-index:2}
+  .ccol.rank1 .cval{color:var(--gold)}
+  .ccol.rank1 .cval::before{content:"👑";display:block;font-size:3.4vh;line-height:1}
+  .ccol.rank1 .stack{box-shadow:inset .8vh 0 1vh rgba(255,255,255,.35),inset -.8vh 0 1vh rgba(0,0,0,.25),0 0 4vh rgba(255,220,100,.85)}
+  .pot{height:4.6vh;margin:0 6%;border-radius:0 0 45% 45%/0 0 100% 100%;background:var(--c);position:relative;
+       box-shadow:inset 0 -1vh 1.4vh rgba(0,0,0,.3),0 .6vh 1vh rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;
+       font-weight:900;font-size:2.8vh;color:#fff;text-shadow:0 .2vh .3vh rgba(0,0,0,.5);white-space:nowrap;overflow:hidden}
+  .pot::before{content:"";position:absolute;left:-4%;right:-4%;top:0;height:1vh;border-radius:1vh;background:var(--c);filter:brightness(1.25)}
+  .cname{text-align:center;padding-top:.6vh;line-height:1.15}
+  .cname span{display:block;font-size:1.45vh;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cname small{display:block;font-size:1.5vh;color:var(--muted)}
+  .coin{position:absolute;top:0;width:3.2vh;height:3.2vh;margin-left:-1.6vh;border-radius:50%;z-index:3;pointer-events:none;
+        background:radial-gradient(circle at 35% 30%,#fff6c8 0%,#ffd25e 38%,#e0a000 75%,#b37a00 100%);
+        box-shadow:0 .3vh .5vh rgba(0,0,0,.35);animation:drop var(--dur) cubic-bezier(.4,0,1,1) forwards}
+  .coin::after{content:"";position:absolute;left:36%;top:36%;width:28%;height:28%;background:#7a0d12;border-radius:.2vh}
+  @keyframes drop{0%{transform:translateY(-4vh) rotate(0)}100%{transform:translateY(var(--to)) rotate(var(--rot))}}
+  #ovSum{position:fixed;inset:0;z-index:15;display:none;flex-direction:column;padding:2.2vh 2vw 2vh;
+         background:radial-gradient(ellipse at 50% -10%, #8f141b 0%, #3a0408 60%, #1a0103 100%)}
+  #ovSum.show{display:flex}
+  .sumHead{display:flex;align-items:flex-end;justify-content:space-between;gap:2vw;margin-bottom:1.4vh}
+  .sumHead h2{margin:0;font-size:4.4vh;font-weight:900}
+  .sumHead h2 small{font-size:2vh;font-weight:500;color:var(--muted);margin-left:1vw}
+  .sumBtns button{font-family:inherit;font-size:1.8vh;font-weight:700;border:none;border-radius:99px;padding:.9vh 1.4vw;margin-left:.6vw;cursor:pointer;background:#eee;color:#333}
+  .mvp{display:flex;gap:1.2vw;margin-bottom:1.6vh}
+  .mvp div{flex:1;background:rgba(0,0,0,.3);border-radius:1.4vh;padding:1vh 1vw;display:flex;align-items:center;gap:.8vw;font-size:2.2vh;min-width:0}
+  .mvp div b{font-size:3.4vh}
+  .mvp div span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mvp div em{font-style:normal;margin-left:auto;font-weight:900;color:var(--gold);font-size:2.8vh;font-variant-numeric:tabular-nums}
+  .sumGrid{flex:1;display:grid;gap:1vw;min-height:0}
+  .col{background:rgba(0,0,0,.28);border-radius:1.6vh;display:flex;flex-direction:column;min-height:0;overflow:hidden;border-top:.8vh solid var(--c)}
+  .colHead{padding:1.2vh .8vw .8vh;text-align:center;border-bottom:1px solid rgba(255,255,255,.12)}
+  .colHead .rk{font-size:1.7vh;color:var(--muted)}
+  .colHead .dn{font-size:3vh;font-weight:900;color:var(--c)}
+  .colHead .av{font-size:3.6vh;font-weight:900;font-variant-numeric:tabular-nums}
+  .colHead .av small{font-size:1.5vh;font-weight:500;color:var(--muted)}
+  .colHead .meta{font-size:1.6vh;color:var(--muted)}
+  .list{flex:1;overflow:hidden;padding:.6vh .6vw}
+  .row{display:flex;align-items:center;gap:.5vw;height:3vh;font-size:2vh;border-radius:.6vh;padding:0 .4vw}
+  .row:nth-child(odd){background:rgba(255,255,255,.04)}
+  .row .no{width:2.6vh;flex:none;text-align:center;color:var(--muted);font-size:1.7vh}
+  .row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .tp{font-weight:800;font-variant-numeric:tabular-nums}
+  .row.top .tp{color:var(--gold)}
+  .empty{color:var(--muted);text-align:center;font-size:1.8vh;padding-top:2vh}
+  #ovSum.show ~ #hostbar{display:none}
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:11}
+  #login{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30}
+  #login.show{display:flex}
+  #login form{background:#fff;color:#222;padding:3vh 2vw;border-radius:2vh;width:min(420px,90vw);display:flex;flex-direction:column;gap:1.2vh}
+  #login input{font-size:18px;padding:10px;border:1px solid #ccc;border-radius:8px}
+  #login button{font-size:18px;padding:10px;border:none;border-radius:8px;background:#18a84a;color:#fff;font-weight:700;cursor:pointer}
+  #login .err{color:#c00;font-size:14px;min-height:18px}
+  .demoTag{position:fixed;bottom:.4vh;left:50%;transform:translateX(-50%);background:#000a;padding:.3vh 1vw;border-radius:1vh;font-size:1.5vh;display:none;z-index:25}
+  .msg{position:absolute;left:0;right:0;bottom:1vh;text-align:center;font-size:2.4vh;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="demoTag" id="demoTag">DEMO 單機試玩模式：用同一個瀏覽器另開分頁打開 index.html 當手機</div>
+
+<header>
+  <div class="title" id="title">🏇 全場手機賽馬 <small>Phone Horse Race · Đua ngựa điện thoại</small></div>
+  <div class="clock"><div class="num" id="clock">60</div><div class="lab" id="clockLab">等待開始 · Waiting</div></div>
+</header>
+
+<main>
+  <section class="track" id="track"><div class="msg" id="trackMsg"></div></section>
+  <aside>
+    <div class="card">
+      <div class="qrbox"><div id="qr"></div></div>
+      <div class="scan">掃我加入！<small>Scan to join · Quét để tham gia</small></div>
+      <div class="url" id="url"></div>
+    </div>
+    <div class="card stat">
+      <div><b id="totTaps">0</b>總點擊 Taps</div>
+      <div><b id="totPlayers">0</b>參賽手機 Phones</div>
+    </div>
+  </aside>
+</main>
+
+<div class="overlay" id="ovCd"><div id="cdNum">3</div></div>
+<div class="overlay" id="ovChamp"><div class="champ" id="champ"></div></div>
+<canvas id="confetti"></canvas>
+
+<div id="ovSum">
+  <div class="sumHead">
+    <h2>📋 結算明細 <small>Results · Kết quả — 排名依部門平均每人點擊數</small></h2>
+    <div class="sumBtns"><button id="bCsv">⬇ 下載 CSV</button><button id="bSumClose">✕ 關閉 (D)</button></div>
+  </div>
+  <div class="mvp" id="mvp"></div>
+  <div class="sumGrid" id="sumGrid"></div>
+</div>
+
+<div id="hostbar">
+  <button class="bStart" id="bStart">▶ 開始 (S)</button>
+  <button class="bReset" id="bReset">↺ 重置 (R)</button>
+  <button class="bGhost" id="bSum">📋 結算 (D)</button>
+  <button class="bGhost" id="bBots" style="display:none">🤖 模擬手機</button>
+  <button class="bGhost" id="bFull">⛶ 全螢幕 (F)</button>
+  <button class="bGhost" id="bLogin">🔑 主持人登入</button>
+  <span class="who" id="who"></span>
+</div>
+
+<div id="login">
+  <form id="loginForm">
+    <b style="font-size:20px">主持人登入</b>
+    <input id="lEmail" type="email" placeholder="Email" autocomplete="username">
+    <input id="lPw" type="password" placeholder="密碼" autocomplete="current-password">
+    <div class="err" id="lErr"></div>
+    <button type="submit">登入</button>
+    <button type="button" id="lCancel" style="background:#aaa">取消</button>
+  </form>
+</div>
+
+<script src="config.js"></script>
+<script type="module">
+const CFG = window.GAME_CONFIG;
+const DEMO = /PASTE_/.test(CFG.firebase.apiKey) || /[?&]demo=1/.test(location.search);
+const GRACE = 5000; // ms the server still accepts final batches after time is up
+const $ = id => document.getElementById(id);
+const depts = CFG.departments;
+
+// ================= backend =================
+async function makeFirebase(){
+  const V = '10.12.2';
+  const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+  const D = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-database.js`);
+  const A = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+  const app = initializeApp(CFG.firebase);
+  const db = D.getDatabase(app);
+  const auth = A.getAuth(app);
+  let offset = 0;
+  D.onValue(D.ref(db, '.info/serverTimeOffset'), s => { offset = s.val() || 0; });
+  return {
+    serverNow: () => Date.now() + offset,
+    onGame: cb => D.onValue(D.ref(db, 'game'), s => cb(s.val())),
+    onClicks: (round, cb) => D.onValue(D.ref(db, 'clicks/' + round), s => cb(s.val() || {})),
+    setGame: g => D.set(D.ref(db, 'game'), g),
+    clearClicks: () => D.remove(D.ref(db, 'clicks')),
+    onAuth: cb => A.onAuthStateChanged(auth, u => cb(u ? u.email : null)),
+    login: (e, p) => A.signInWithEmailAndPassword(auth, e, p),
+    logout: () => A.signOut(auth),
+    writeBot: null
+  };
+}
+function makeDemo(){
+  const read = k => { try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } };
+  const write = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+  const watch = (k, cb, pick) => { let last; const f = () => { const v = pick(read(k)); const s = JSON.stringify(v); if (s !== last) { last = s; cb(v); } }; f(); const h = setInterval(f, 150); return () => clearInterval(h); };
+  return {
+    serverNow: () => Date.now(),
+    onGame: cb => watch('hr_demo_game', cb, v => v),
+    onClicks: (round, cb) => watch('hr_demo_clicks', cb, v => (v && v[round]) || {}),
+    setGame: async g => write('hr_demo_game', g),
+    clearClicks: async () => write('hr_demo_clicks', {}),
+    onAuth: cb => cb('demo'),
+    login: async () => {}, logout: async () => {},
+    writeBot: (round, dept, id, c) => { const all = read('hr_demo_clicks') || {}; all[round] = all[round] || {}; all[round][dept] = all[round][dept] || {}; all[round][dept][id] = { c, n: '測試員' + Number(id.slice(3)), t: Date.now() }; write('hr_demo_clicks', all); }
+  };
+}
+
+// ================= UI: lanes =================
+const THEME = CFG.theme === 'horse' ? 'horse' : 'coins';
+const lanes = {};
+if (THEME === 'coins') {
+  document.title = '財神撒金幣｜大螢幕';
+  $('title').innerHTML = '💰 財神撒金幣 <small>God of Wealth Coin Rush · Thần Tài rải vàng</small>';
+  const tr = $('track');
+  tr.classList.add('coins');
+  tr.insertAdjacentHTML('afterbegin', `<div class="banner"><span class="lan">🏮</span> 🧧 財神到・金幣滿滿 🧧 <span class="lan">🏮</span></div>
+    <div class="cols" id="cols"><div class="goal"><span>🎯 目標 Goal</span></div></div>`);
+  for (const d of depts) {
+    const el = document.createElement('div');
+    el.className = 'ccol';
+    el.style.setProperty('--c', d.color);
+    el.innerHTML = `<div class="cstage"><div class="stack"></div><div class="cval">0.0</div></div>
+      <div class="pot">${d.zh}</div>
+      <div class="cname"><span>${d.en} · ${d.vi}</span><small>0 人 · 總 0 下</small></div>`;
+    $('cols').appendChild(el);
+    lanes[d.id] = { el, stage: el.querySelector('.cstage'), stack: el.querySelector('.stack'), val: el.querySelector('.cval'),
+                    num: null, ppl: el.querySelector('.cname small') };
+  }
+} else for (const d of depts) {
+  const el = document.createElement('div');
+  el.className = 'lane';
+  el.innerHTML = `<div class="lname"><b>${d.zh}</b><span>${d.en} · ${d.vi}</span></div>
+    <div class="road"><div class="rail"><div class="fill" style="background:${d.color}"></div>
+    <div class="horse"><span class="emo">🏇</span></div></div></div>
+    <div class="lscore"><b style="border-left:.6vh solid ${d.color};padding-left:.6vw">0</b><span>0 人 · 總 0 下</span></div>`;
+  $('track').insertBefore(el, $('trackMsg'));
+  lanes[d.id] = { el, fill: el.querySelector('.fill'), horse: el.querySelector('.horse'), num: el.querySelector(".lscore b"), ppl: el.querySelector(".lscore span") };
+}
+
+// ================= QR =================
+const joinUrl = CFG.joinUrl || new URL('index.html', location.href).href.replace(/index\.html$/, '');
+$('url').textContent = joinUrl;
+try {
+  new QRCode($('qr'), { text: joinUrl, width: 512, height: 512, correctLevel: QRCode.CorrectLevel.M });
+} catch (e) {
+  $('qr').innerHTML = `<img alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(joinUrl)}">`;
+}
+
+// ================= state =================
+let B, game = null, clicks = {}, unsubClicks = null, curRound = null, host = null, ending = false;
+let totals = {}, players = {}, avgs = {};
+
+// 排名用「平均點擊數」= 部門總點擊數 ÷ 參加手機數（四捨五入到小數 1 位）
+function sum(){
+  totals = {}; players = {}; avgs = {};
+  for (const d of depts) { totals[d.id] = 0; players[d.id] = 0; }
+  for (const dep in clicks) {
+    if (!(dep in totals)) continue;
+    for (const dev in clicks[dep]) { const c = +(clicks[dep][dev] && clicks[dep][dev].c) || 0; totals[dep] += c; players[dep]++; }
+  }
+  for (const d of depts) avgs[d.id] = players[d.id] ? Math.round(totals[d.id] / players[d.id] * 10) / 10 : 0;
+}
+function phase(){
+  if (!game || game.state === 'waiting') return 'waiting';
+  if (game.state === 'ended') return 'ended';
+  const now = B.serverNow();
+  if (now < game.startAt) return 'countdown';
+  if (now < game.endsAt) return 'running';
+  return 'counting';
+}
+function winners(){
+  let best = -1, ids = [];
+  for (const d of depts) { const v = avgs[d.id]; if (v > best) { best = v; ids = [d.id]; } else if (v === best) ids.push(d.id); }
+  return best > 0 ? ids : [];
+}
+
+// ================= render =================
+const shown = {};
+function render(){
+  if (B) {
+    const p = phase(), now = B.serverNow();
+    const dur = (game && game.endsAt && game.startAt) ? game.endsAt - game.startAt : CFG.durationSec * 1000;
+    let frac = 0;
+    if (p === 'running') frac = (now - game.startAt) / dur;
+    else if (p === 'counting' || p === 'ended') frac = 1;
+    for (const d of depts) { const v = avgs[d.id] || 0; shown[d.id] = shown[d.id] == null ? v : shown[d.id] + (v - shown[d.id]) * 0.12; if (Math.abs(v - shown[d.id]) < 0.05) shown[d.id] = v; }
+    const lead = Math.max(1, ...depts.map(d => shown[d.id]));
+    const order = depts.map(d => d.id).sort((a, b) => avgs[b] - avgs[a]);
+    for (const d of depts) {
+      const L = lanes[d.id], v = avgs[d.id] || 0;
+      const pos = p === 'waiting' ? 0 : (shown[d.id] / lead) * (0.04 + 0.96 * Math.min(1, frac));
+      if (THEME === 'coins') {
+        // stage top 4.5vh is the goal line; leader reaches it exactly when time is up
+        const h = L.stage.clientHeight, usable = Math.max(1, h - 4.5 * innerHeight / 100);
+        const px = pos * usable;
+        L.stack.style.height = px + 'px';
+        L.val.style.bottom = px + 'px';
+        L.val.textContent = shown[d.id].toFixed(1);
+        L.top = px;
+      } else {
+        L.horse.style.left = (pos * 100) + '%';
+        L.fill.style.width = `calc(${pos * 100}% + 6.5vh)`;
+        L.num.textContent = shown[d.id].toFixed(1);
+      }
+      L.ppl.textContent = `${players[d.id] || 0} 人 · 總 ${totals[d.id] || 0} 下`;
+      L.el.classList.toggle('rank1', v > 0 && order[0] === d.id);
+    }
+    $('track').classList.toggle('running', p === 'running');
+    if (THEME === 'coins') dropCoins(p);
+    $('totTaps').textContent = Object.values(totals).reduce((a, b) => a + b, 0);
+    $('totPlayers').textContent = Object.values(players).reduce((a, b) => a + b, 0);
+
+    // clock
+    const secs = p === 'running' ? Math.ceil((game.endsAt - now) / 1000) : p === 'countdown' ? Math.round(dur / 1000) : p === 'waiting' ? CFG.durationSec : 0;
+    $('clock').textContent = Math.max(0, secs);
+    $('clockLab').textContent = { waiting: '等待開始 · Waiting', countdown: '準備 · Get ready', running: '秒 · seconds left', counting: '統計中… · Counting', ended: '比賽結束 · Finished' }[p];
+    $('trackMsg').textContent = p === 'waiting' ? '請大家掃 QR Code、選語言和部門，等主持人按開始！比的是部門「平均每人點擊數」' : p === 'counting' ? '時間到！統計最後的點擊中…' : '';
+
+    // countdown overlay
+    $('ovCd').classList.toggle('show', p === 'countdown');
+    if (p === 'countdown') { const n = Math.ceil((game.startAt - now) / 1000); if ($('cdNum').textContent != n) $('cdNum').textContent = n; }
+
+    // host ends the race after the grace window
+    if (p === 'counting' && host && !ending && now > game.endsAt + GRACE) {
+      ending = true;
+      B.setGame({ ...game, state: 'ended', winners: winners(), totals, players, avgs }).catch(e => { console.error(e); ending = false; });
+    }
+    showChamp(p === 'ended');
+  }
+  requestAnimationFrame(render);
+}
+
+let champShown = false;
+function showChamp(on){
+  if (on && !champShown) {
+    champShown = true;
+    const ids = (game.winners && game.winners.length) ? game.winners : winners();
+    const fin = game.totals || totals, fp = game.players || players, fa = game.avgs || avgs;
+    if (!ids.length) {
+      $('champ').innerHTML = `<div class="trophy">🤔</div><div class="name" style="font-size:8vh">沒有人點擊</div><div class="sub">No taps recorded</div>`;
+    } else {
+      const ds = ids.map(id => depts.find(d => d.id === id)).filter(Boolean);
+      $('champ').innerHTML = `<div class="trophy">🏆</div><div class="lab">${ds.length > 1 ? '並列冠軍' : '冠軍'} · CHAMPION · VÔ ĐỊCH</div>
+        <div class="name">${ds.map(d => `<span style="color:${d.color}">${d.zh}</span>`).join(' ＆ ')}</div>
+        <div class="sub">${ds.map(d => d.en + ' · ' + d.vi).join(' ／ ')}</div>
+        <div class="score">平均 ${(fa[ids[0]] || 0).toFixed(1)} 下 / 人 · avg taps per phone</div>
+        <div class="sub">${ids.map(id => `${fp[id] || 0} 人參加 · 總 ${fin[id] || 0} 下`).join(' ／ ')}</div>`;
+    }
+    $('ovChamp').classList.add('show');
+    confetti();
+  }
+  if (!on && champShown) { champShown = false; $('ovChamp').classList.remove('show'); }
+}
+
+// ================= confetti =================
+function confetti(){
+  const cv = $('confetti'), ctx = cv.getContext('2d');
+  cv.width = innerWidth; cv.height = innerHeight;
+  const cols = ['#ffd25e', '#ff5a5f', '#4a90e2', '#5ef08a', '#fff', '#f0a500'];
+  const ps = Array.from({ length: 260 }, () => ({ x: Math.random() * cv.width, y: -Math.random() * cv.height, w: 6 + Math.random() * 8, h: 10 + Math.random() * 10, vy: 2 + Math.random() * 4, vx: -2 + Math.random() * 4, r: Math.random() * 6, vr: -0.2 + Math.random() * 0.4, c: cols[Math.floor(Math.random() * cols.length)] }));
+  const t0 = performance.now();
+  (function f(t){
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    for (const p of ps) { p.x += p.vx; p.y += p.vy; p.r += p.vr; if (p.y > cv.height + 20 && t - t0 < 5000) { p.y = -20; p.x = Math.random() * cv.width; }
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore(); }
+    if (t - t0 < 9000 && champShown) requestAnimationFrame(f); else ctx.clearRect(0, 0, cv.width, cv.height);
+  })(t0);
+}
+
+// ================= coins: 財神撒金幣 =================
+const pending = {}, lastTot = {}, lastDrop = {};
+let liveCoins = 0;
+function queueCoins(){
+  for (const d of depts) {
+    const v = totals[d.id] || 0, before = lastTot[d.id] == null ? v : lastTot[d.id];
+    if (v > before) pending[d.id] = Math.min(40, (pending[d.id] || 0) + (v - before) / 4); // 1 coin per ~4 taps
+    lastTot[d.id] = v;
+  }
+}
+function dropCoins(p){
+  if (p !== 'running' && p !== 'counting') { for (const k in pending) pending[k] = 0; return; }
+  const t = performance.now();
+  for (const d of depts) {
+    if (!(pending[d.id] >= 1) || liveCoins > 160) continue;
+    if (t - (lastDrop[d.id] || 0) < 45) continue;
+    lastDrop[d.id] = t; pending[d.id] -= 1;
+    const L = lanes[d.id], c = document.createElement('div');
+    const h = L.stage.clientHeight;
+    c.className = 'coin';
+    c.style.left = (25 + Math.random() * 50) + '%';
+    c.style.setProperty('--to', Math.max(0, h - (L.top || 0) - innerHeight * 0.02) + 'px');
+    c.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    c.style.setProperty('--dur', (0.7 + Math.random() * 0.5) + 's');
+    c.addEventListener('animationend', () => { c.remove(); liveCoins--; });
+    L.stage.appendChild(c); liveCoins++;
+  }
+}
+
+// ================= settlement (結算明細) =================
+const esc = x => String(x == null ? '' : x).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+function people(){
+  const out = {};
+  for (const d of depts) {
+    const m = clicks[d.id] || {};
+    out[d.id] = Object.keys(m).map(dev => ({ name: (m[dev] && m[dev].n) || '（未命名）', c: +(m[dev] && m[dev].c) || 0 }))
+      .sort((a, b) => b.c - a.c);
+  }
+  return out;
+}
+const medal = i => ['🥇', '🥈', '🥉'][i] || (i + 1);
+function renderSum(){
+  const ppl = people();
+  const order = depts.slice().sort((a, b) => avgs[b.id] - avgs[a.id]);
+  const all = [];
+  for (const d of depts) for (const p of ppl[d.id]) all.push({ ...p, d });
+  all.sort((a, b) => b.c - a.c);
+  $('mvp').innerHTML = all.length ? all.slice(0, 3).map((p, i) =>
+    `<div><b>${medal(i)}</b><span>個人第 ${i + 1} 名 · <span style="color:${p.d.color}">${esc(p.d.zh)}</span> ${esc(p.name)}</span><em>${p.c} 下</em></div>`).join('')
+    : '<div><span>還沒有人點擊 · No taps yet</span></div>';
+  $('sumGrid').style.gridTemplateColumns = `repeat(${Math.min(depts.length, 6)}, minmax(0, 1fr))`;
+  $('sumGrid').innerHTML = order.map((d, r) => `
+    <div class="col" style="--c:${d.color}">
+      <div class="colHead">
+        <div class="rk">部門第 ${r + 1} 名</div>
+        <div class="dn">${esc(d.zh)}</div>
+        <div class="av">${(avgs[d.id] || 0).toFixed(1)} <small>平均下/人</small></div>
+        <div class="meta">${players[d.id] || 0} 人 · 總 ${totals[d.id] || 0} 下</div>
+      </div>
+      <div class="list">${ppl[d.id].length ? ppl[d.id].map((p, i) =>
+        `<div class="row${i < 3 ? ' top' : ''}"><span class="no">${medal(i)}</span><span class="nm">${esc(p.name)}</span><span class="tp">${p.c}</span></div>`).join('')
+        : '<div class="empty">沒有人參加</div>'}</div>
+    </div>`).join('');
+}
+// lists longer than the screen scroll slowly by themselves
+setInterval(() => {
+  if (!$('ovSum').classList.contains('show')) return;
+  for (const el of document.querySelectorAll('#sumGrid .list')) {
+    if (el.scrollHeight <= el.clientHeight + 2) continue;
+    el._w = (el._w || 0) + 1;
+    if (el._w < 40) continue;                        // pause ~2s at top / bottom
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 1) { if (el._w > 80) { el.scrollTop = 0; el._w = 0; } }
+    else el.scrollTop += 1;
+  }
+}, 50);
+function toggleSum(on){
+  on = on === undefined ? !$('ovSum').classList.contains('show') : on;
+  if (on) renderSum();
+  $('ovSum').classList.toggle('show', on);
+}
+function downloadCsv(){
+  const ppl = people();
+  const rows = [['部門', 'Department', '名字', '點擊數', '部門人數', '部門總點擊', '部門平均']];
+  for (const d of depts.slice().sort((a, b) => avgs[b.id] - avgs[a.id]))
+    for (const p of ppl[d.id]) rows.push([d.zh, d.en, p.name, p.c, players[d.id], totals[d.id], avgs[d.id]]);
+  const csv = '\ufeff' + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = `手機賽馬結算_${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '')}.csv`;
+  a.click();
+}
+$('bSum').onclick = () => toggleSum();
+$('bSumClose').onclick = () => toggleSum(false);
+$('bCsv').onclick = downloadCsv;
+
+// ================= host actions =================
+const newRound = () => 'r' + Date.now().toString(36);
+async function start(){
+  if (!host) return openLogin();
+  const p = phase();
+  if (p === 'countdown' || p === 'running' || p === 'counting') return;
+  ending = false;
+  toggleSum(false);
+  const startAt = Math.round(B.serverNow() + CFG.countdownSec * 1000);
+  try {
+    await B.clearClicks();
+    await B.setGame({ state: 'running', round: newRound(), startAt, endsAt: startAt + CFG.durationSec * 1000 });
+  } catch (e) { alert('開始失敗：' + e.message + '\n（請確認已用主持人帳號登入，且資料庫規則已發布）'); }
+}
+async function reset(){
+  if (!host) return openLogin();
+  if (phase() === 'running' && !confirm('比賽進行中，確定要重置？')) return;
+  stopBots();
+  ending = false;
+  toggleSum(false);
+  try {
+    await B.clearClicks();
+    await B.setGame({ state: 'waiting', round: newRound() });
+  } catch (e) { alert('重置失敗：' + e.message); }
+}
+
+// demo bots: simulate phones so one person can watch a full race
+let botTimer = null;
+function startBots(){
+  if (!B.writeBot || botTimer) return;
+  const bots = Array.from({ length: 130 }, (_, i) => ({ id: 'bot' + String(i).padStart(5, '0'), dept: depts[i % depts.length].id, c: 0, speed: 3 + Math.random() * 9 }));
+  let botRound = null;
+  botTimer = setInterval(() => {
+    if (phase() !== 'running') return;
+    if (game.round !== botRound) { botRound = game.round; for (const b of bots) b.c = 0; }
+    for (const b of bots) { b.c += Math.round(b.speed * (0.6 + Math.random() * 0.8)); B.writeBot(game.round, b.dept, b.id, b.c); }
+  }, 1000);
+  $('bBots').textContent = '🤖 模擬中（再按一次停止）';
+}
+function stopBots(){ if (botTimer) { clearInterval(botTimer); botTimer = null; $('bBots').textContent = '🤖 模擬手機'; } }
+
+function openLogin(){ if (DEMO) return; $('lErr').textContent = ''; $('lEmail').value = $('lEmail').value || CFG.hostEmail; $('login').classList.add('show'); }
+$('loginForm').onsubmit = async e => {
+  e.preventDefault();
+  try { await B.login($('lEmail').value.trim(), $('lPw').value); $('login').classList.remove('show'); $('lPw').value = ''; }
+  catch (err) { $('lErr').textContent = '登入失敗：' + (err.code || err.message); }
+};
+$('lCancel').onclick = () => $('login').classList.remove('show');
+$('bStart').onclick = start;
+$('bReset').onclick = reset;
+$('bBots').onclick = () => (botTimer ? stopBots() : startBots());
+$('bFull').onclick = () => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen());
+$('bLogin').onclick = () => (host && !DEMO ? B.logout() : openLogin());
+addEventListener('keydown', e => {
+  if ($('login').classList.contains('show')) return;
+  const k = e.key.toLowerCase();
+  if (k === 's') start(); else if (k === 'r') reset(); else if (k === 'f') $('bFull').click(); else if (k === 'h') $('hostbar').classList.toggle('pinned'); else if (k === 'd') toggleSum(); else if (k === 'escape') toggleSum(false);
+});
+
+// ================= boot =================
+(async () => {
+  try { B = DEMO ? makeDemo() : await makeFirebase(); }
+  catch (e) { $('trackMsg').textContent = 'Firebase 載入失敗：' + e.message; return; }
+  if (DEMO) { $('demoTag').style.display = 'block'; $('bBots').style.display = ''; $('bLogin').style.display = 'none'; $('hostbar').classList.add('pinned'); }
+  B.onAuth(email => {
+    host = email && (DEMO || email.toLowerCase() === CFG.hostEmail.toLowerCase()) ? email : null;
+    $('who').textContent = DEMO ? '試玩模式' : host ? '主持人：' + host : (email ? '此帳號不是主持人' : '未登入（只能觀看）');
+    $('bLogin').textContent = host && !DEMO ? '登出' : '🔑 主持人登入';
+    if (host) $('hostbar').classList.add('pinned');
+  });
+  B.onGame(g => {
+    game = g;
+    if (g && g.round !== curRound) {
+      curRound = g.round;
+      if (unsubClicks) unsubClicks();
+      clicks = {}; sum(); for (const k in lastTot) delete lastTot[k];
+      for (const k in shown) delete shown[k];
+      unsubClicks = B.onClicks(curRound, c => { clicks = c; sum(); queueCoins(); if ($('ovSum').classList.contains('show')) renderSum(); });
+    }
+    if (!g || g.state !== 'running') ending = false;
+  });
+  sum();
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
