@@ -5,111 +5,205 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#7a0d12">
 <title>全場手機賽馬 🏇</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg1:#7a0d12; --bg2:#2b0306; --gold:#ffd25e; --gold2:#f0a500;
-    --text:#fff8ec; --muted:rgba(255,248,236,.7); --dept:#ffd25e;
+    --red:#7E0C12; --red2:#A3161D; --red3:#6A0A0F; --gold:#F6CF6A; --gold2:#D9A030; --gold3:#E9B949; --bronze:#B9831C;
+    --ink:#4A0508; --text:#FFF3D6; --muted:#F3D9A4; --dept:#F6CF6A;
+    --serif:'Noto Serif TC','Songti TC','PMingLiU',serif;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none}
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",Roboto,sans-serif;
+    font-family:'Noto Sans TC',-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",Roboto,sans-serif;
     color:var(--text);
-    background:radial-gradient(circle at 50% 0%, #b3171f 0%, var(--bg1) 40%, var(--bg2) 100%);
+    background-color:var(--red);
+    background-image:repeating-linear-gradient(45deg, rgba(233,185,73,.07) 0 2px, transparent 2px 22px),
+                     repeating-linear-gradient(-45deg, rgba(233,185,73,.07) 0 2px, transparent 2px 22px);
     position:fixed; inset:0;
     -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
     touch-action:manipulation;
   }
-  .page{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
-        padding:calc(env(safe-area-inset-top) + 16px) 20px calc(env(safe-area-inset-bottom) + 16px)}
+  .frame{position:fixed;inset:10px;border:2px solid var(--gold3);border-radius:18px;pointer-events:none;z-index:0}
+  .frame::after{content:"";position:absolute;inset:5px;border:1px solid rgba(233,185,73,.45);border-radius:14px}
+  .page{position:absolute;inset:0;display:none;flex-direction:column;z-index:1;
+        padding:calc(env(safe-area-inset-top) + 30px) 26px calc(env(safe-area-inset-bottom) + 28px)}
   .page.active{display:flex}
-  h1{font-size:28px;margin:0 0 6px;text-align:center;letter-spacing:1px}
-  .sub{color:var(--muted);text-align:center;margin:0 0 28px;font-size:15px;line-height:1.5}
-  .btn{
-    display:block;width:100%;max-width:420px;margin:8px 0;padding:18px 16px;border:none;border-radius:16px;
-    font-size:22px;font-weight:700;color:#3a0a00;background:linear-gradient(180deg,var(--gold),var(--gold2));
-    box-shadow:0 4px 0 #a86e00, 0 8px 18px rgba(0,0,0,.35);font-family:inherit;cursor:pointer
-  }
-  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #a86e00}
-  .btn small{display:block;font-size:13px;font-weight:500;opacity:.75;margin-top:2px}
-  .deptGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:440px}
-  .deptBtn{padding:20px 8px;border-radius:16px;border:3px solid rgba(255,255,255,.2);color:#fff;font-size:20px;
-           font-weight:800;font-family:inherit;text-shadow:0 1px 3px rgba(0,0,0,.4);box-shadow:0 6px 14px rgba(0,0,0,.3)}
-  .deptBtn:active{transform:scale(.96)}
-  .nameBox{width:100%;max-width:440px;margin:0 0 18px}
-  .nameBox label{display:block;font-size:16px;font-weight:700;margin-bottom:6px}
-  #nameInput{width:100%;font-size:22px;padding:14px 16px;border-radius:14px;border:3px solid var(--gold);background:#fff8ec;color:#3a0a00;font-family:inherit;-webkit-user-select:text;user-select:text}
-  #nameInput.err{border-color:#ff5252;animation:shake .3s}
-  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-  .link{background:none;border:none;color:var(--muted);font-size:15px;margin-top:22px;text-decoration:underline;font-family:inherit}
+  .steps{display:flex;gap:8px;justify-content:center}
+  .steps i{width:28px;height:6px;border-radius:3px;background:rgba(246,207,106,.3)}
+  .steps i.on{background:var(--gold)}
+  .serif{font-family:var(--serif)}
+  .gbtn{display:flex;align-items:center;justify-content:center;width:100%;height:62px;border-radius:14px;border:2px solid var(--gold3);
+        background:linear-gradient(180deg,var(--gold),var(--gold2));color:var(--ink);font-family:var(--serif);font-weight:900;font-size:22px;
+        box-shadow:0 4px 0 #6B4208;cursor:pointer;text-decoration:none}
+  .gbtn:active{transform:translateY(3px);box-shadow:0 1px 0 #6B4208}
+  .link{background:none;border:none;color:var(--muted);font-size:15px;text-decoration:underline;font-family:inherit;padding:10px;align-self:center}
 
-  /* play page */
-  #pPlay{justify-content:flex-start;padding-left:14px;padding-right:14px}
+  /* page 1 */
+  #pLang{align-items:center}
+  .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+  .coinLogo{position:relative;width:150px;height:150px;border-radius:50%;border:5px solid var(--bronze);
+            background:radial-gradient(circle at 35% 30%,#FFF0B8 0%,var(--gold) 32%,var(--gold2) 72%,#A8721A 100%);
+            box-shadow:0 6px 0 #6B4208,0 14px 28px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center}
+  .coinLogo span{width:46px;height:46px;background:var(--red);border:4px solid var(--bronze);border-radius:6px}
+  .title{margin-top:14px;font-family:var(--serif);font-weight:900;font-size:40px;letter-spacing:8px;color:var(--gold);text-shadow:0 3px 0 var(--ink)}
+  .subtitle{font-size:14px;color:var(--muted)}
+  .langBox{width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px}
+  .hint{text-align:center;font-size:15px;color:var(--muted)}
+
+  /* page 2 / 3 */
+  .head{display:flex;flex-direction:column;gap:8px;margin-top:28px}
+  .stepTxt{font-size:15px;color:var(--muted);letter-spacing:2px}
+  .h1{font-family:var(--serif);font-weight:900;font-size:34px;line-height:1.25;color:var(--gold);margin:0}
+  .lead{font-size:16px;line-height:1.6;color:var(--muted);margin:0}
+  .field{display:flex;flex-direction:column;gap:8px;margin-top:26px}
+  .field label{font-size:15px;font-weight:700;color:var(--gold)}
+  #nameInput{width:100%;height:64px;padding:0 20px;border-radius:14px;border:3px solid var(--gold3);background:#FFF6E2;color:var(--ink);
+             font-size:24px;font-family:inherit;font-weight:700;-webkit-user-select:text;user-select:text}
+  #nameInput.err{border-color:#FF5252;animation:shake .3s}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .small{font-size:13px;color:var(--muted)}
+  .bottom{margin-top:auto;display:flex;flex-direction:column;gap:8px;width:100%;max-width:420px;align-self:center}
+  .deptGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:22px}
+  .deptBtn{height:84px;border-radius:14px;border:2px solid var(--gold3);background:linear-gradient(180deg,var(--red2),var(--red3));color:var(--text);
+           font-family:var(--serif);font-weight:900;font-size:21px;letter-spacing:1px;
+           box-shadow:inset 0 0 0 4px rgba(233,185,73,.18),0 4px 0 #3D0306;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 8px}
+  .deptBtn:active{transform:scale(.96)}
+  .deptBtn i{flex:none;width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 2px var(--gold3)}
+
+  /* page 4: play */
+  #pPlay{align-items:center;padding-left:22px;padding-right:22px;padding-top:calc(env(safe-area-inset-top) + 26px)}
   .topbar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px}
-  .chip{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.28);font-weight:700;font-size:16px}
-  #myDept{max-width:56vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .dot{width:12px;height:12px;border-radius:50%;background:var(--dept);box-shadow:0 0 0 2px rgba(255,255,255,.5)}
-  .net{width:10px;height:10px;border-radius:50%;background:#3ddc84;margin-left:6px}
-  .net.bad{background:#ff5252;animation:blink 1s infinite}
+  .chip{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(40,0,2,.45);border:1px solid rgba(233,185,73,.6);font-weight:700;font-size:15px;min-width:0}
+  #myDept{max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--dept)}
+  .net{flex:none;width:8px;height:8px;border-radius:50%;background:#5BE38A}
+  .net.bad{background:#FF5252;animation:blink 1s infinite}
   @keyframes blink{50%{opacity:.2}}
-  .smallBtn{background:rgba(0,0,0,.28);border:none;color:var(--text);padding:8px 12px;border-radius:999px;font-size:14px;font-family:inherit}
-  .status{margin:14px 0 6px;font-size:22px;font-weight:700;text-align:center;min-height:30px}
-  .timer{font-size:64px;font-weight:900;line-height:1;color:var(--gold);text-shadow:0 3px 0 rgba(0,0,0,.35);min-height:64px}
-  .tapWrap{flex:1;width:100%;display:flex;align-items:center;justify-content:center;padding:14px 0}
-  #tap{
-    width:min(84vw,62vh);height:min(84vw,62vh);border-radius:50%;border:none;font-family:inherit;
-    background:radial-gradient(circle at 35% 30%, #fff3c4 0%, var(--gold) 35%, var(--gold2) 100%);
-    color:#5a1500;font-size:clamp(34px,11vw,64px);font-weight:900;
-    box-shadow:0 10px 0 #a86e00, 0 18px 40px rgba(0,0,0,.45), inset 0 -8px 18px rgba(0,0,0,.15);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:none;
-    transition:transform .05s
-  }
-  #tap .cnt{font-size:.55em;margin-top:6px;opacity:.85}
-  #tap.disabled{filter:grayscale(.9) brightness(.6);box-shadow:0 6px 0 #555, 0 12px 30px rgba(0,0,0,.4)}
-  #tap.disabled .label{font-size:.42em;padding:0 12%;line-height:1.3}
-  #tap.hit{transform:scale(.94) translateY(6px);box-shadow:0 4px 0 #a86e00, 0 8px 20px rgba(0,0,0,.4)}
-  .mycount{font-size:20px;color:var(--muted);text-align:center;min-height:28px}
-  .warn{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);transform:translateX(-50%);
-        background:rgba(0,0,0,.65);padding:8px 16px;border-radius:999px;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+  .smallBtn{flex:none;height:36px;padding:0 12px;border-radius:999px;border:1px solid rgba(233,185,73,.6);background:transparent;color:var(--muted);font-size:13px;font-family:inherit}
+  .status{margin-top:22px;font-family:var(--serif);font-weight:600;font-size:18px;letter-spacing:3px;color:var(--muted);text-align:center;min-height:26px}
+  .timer{font-family:var(--serif);font-weight:900;font-size:84px;line-height:1;color:var(--gold);text-shadow:0 4px 0 var(--ink);min-height:84px}
+  .tapWrap{flex:1;width:100%;display:flex;align-items:center;justify-content:center;
+           background:radial-gradient(circle at 50% 50%, rgba(255,190,80,.28), transparent 60%)}
+  #tap{position:relative;width:min(78vw,52vh);height:min(78vw,52vh);border-radius:50%;border:6px solid var(--bronze);padding:0;font-family:var(--serif);
+       background:radial-gradient(circle at 35% 30%,#FFF0B8 0%,var(--gold) 32%,var(--gold2) 72%,#A8721A 100%);
+       box-shadow:0 10px 0 #6B4208,0 22px 40px rgba(0,0,0,.45),inset 0 0 0 14px rgba(255,240,190,.35);
+       display:flex;align-items:center;justify-content:center;touch-action:none;transition:transform .05s;color:#6B1A08}
+  #tap .hole{position:absolute;width:30%;height:30%;background:var(--red);border:6px solid var(--bronze);border-radius:10px;box-shadow:inset 0 4px 10px rgba(0,0,0,.5)}
+  #tap .label{position:absolute;top:9%;left:0;right:0;font-weight:900;font-size:clamp(26px,9vw,40px);text-align:center;line-height:1.1;padding:0 18%}
+  #tap .cnt{position:absolute;bottom:9%;left:0;right:0;font-weight:900;font-size:clamp(26px,9vw,40px);text-align:center}
+  #tap .side{position:absolute;top:50%;transform:translateY(-50%);font-weight:900;font-size:clamp(24px,8vw,38px)}
+  #tap .side.l{left:11%} #tap .side.r{right:11%}
+  #tap.disabled{filter:grayscale(.85) brightness(.6);box-shadow:0 6px 0 #3a2a10,0 12px 30px rgba(0,0,0,.4)}
+  #tap.disabled .label{font-size:clamp(16px,5vw,22px);top:11%}
+  #tap.hit{transform:scale(.95) translateY(6px);box-shadow:0 4px 0 #6B4208,0 8px 20px rgba(0,0,0,.4),inset 0 0 0 14px rgba(255,240,190,.35)}
+  .mycount{font-size:18px;color:var(--muted);text-align:center;min-height:28px;padding:0 8px}
+  .mycount b{font-family:var(--serif);font-weight:900;font-size:40px;color:var(--text);margin:0 6px}
+  .warn{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 22px);transform:translateX(-50%);z-index:5;
+        background:rgba(40,0,2,.85);border:1px solid var(--gold3);padding:8px 16px;border-radius:999px;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
   .warn.show{opacity:1}
-  .demo{position:fixed;top:4px;left:50%;transform:translateX(-50%);font-size:11px;background:#000a;padding:2px 8px;border-radius:6px;display:none}
+  .demo{position:fixed;top:4px;left:50%;transform:translateX(-50%);font-size:11px;background:#000a;padding:2px 8px;border-radius:6px;display:none;z-index:6}
+
+  /* ===== 競技版：手速計、連擊、手速等級 ===== */
+  .timePill{display:none;flex:none;align-items:baseline;gap:4px;padding:6px 14px;border-radius:999px;background:var(--gold);color:var(--ink);font-weight:700;font-size:13px}
+  .timePill b{font-family:var(--serif);font-weight:900;font-size:26px;line-height:1}
+  .speedRow{display:none;align-items:baseline;gap:6px}
+  .speedRow b{font-family:var(--serif);font-weight:900;font-size:64px;line-height:1;color:#FFE08A;
+              text-shadow:0 0 calc(6px + var(--p,0) * 22px) rgba(255,170,40,.95),0 4px 0 var(--ink)}
+  .speedRow span{font-size:16px;font-weight:700;color:var(--muted)}
+  .tapWrap{position:relative;background:radial-gradient(circle at 50% 50%, rgba(255,150,40,calc(.15 + var(--p,0) * .4)), transparent 60%)}
+  .ring{--sz:min(72vw,44vh);position:relative;width:calc(var(--sz) + 44px);height:calc(var(--sz) + 44px);border-radius:50%;display:flex;align-items:center;justify-content:center;
+        background:conic-gradient(from 225deg,#FFE08A 0deg,#FF8A1F calc(var(--p,0) * 270deg),rgba(255,255,255,.12) calc(var(--p,0) * 270deg) 270deg,transparent 270deg)}
+  .ring::before{content:"";position:absolute;inset:11px;border-radius:50%;background:var(--red)}
+  #tap{width:var(--sz);height:var(--sz);
+       box-shadow:0 0 calc(8px + var(--p,0) * 46px) rgba(255,170,40,calc(.25 + var(--p,0) * .65)),0 10px 0 #6B4208,inset 0 0 0 14px rgba(255,240,190,.35)}
+  .combo{position:absolute;top:2%;right:2%;transform:rotate(8deg) scale(0);padding:6px 12px;border-radius:10px;background:#FF8A1F;border:2px solid #FFE08A;
+         color:#3D0306;font-weight:900;font-size:18px;box-shadow:0 4px 0 #6B2A04;transition:transform .12s;white-space:nowrap}
+  .combo.show{transform:rotate(8deg) scale(1)}
+  .combo.pop{transform:rotate(8deg) scale(1.18)}
+  .levels{display:none;width:100%;flex-direction:column;gap:6px;margin-top:4px}
+  .lvBars,.lvNames{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .lvBars i{height:10px;border-radius:5px;background:rgba(255,255,255,.15)}
+  .lvBars i.on:nth-child(1){background:#FFE08A}.lvBars i.on:nth-child(2){background:#FFC24A}.lvBars i.on:nth-child(3){background:#FF8A1F}.lvBars i.on:nth-child(4){background:#FF4D2E;box-shadow:0 0 10px #FF8A1F}
+  .lvNames span{font-size:12px;text-align:center;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lvNames span.cur{color:#FFE08A;font-weight:900}
+  .lvHint{text-align:center;font-family:var(--serif);font-weight:900;font-size:18px;color:#FFE08A;min-height:24px}
 </style>
 </head>
 <body>
 <div class="demo" id="demoTag">DEMO 單機試玩模式</div>
+<div class="frame"></div>
 
 <!-- Page 1: language -->
 <section class="page active" id="pLang">
-  <div style="font-size:64px" id="gEmoji">🏇</div>
-  <h1 id="gTitle">全場手機賽馬</h1>
-  <p class="sub" id="gSub">Phone Horse Race · Đua ngựa điện thoại</p>
-  <button class="btn" data-lang="zh">中文</button>
-  <button class="btn" data-lang="en">English</button>
-  <button class="btn" data-lang="vi">Tiếng Việt</button>
-</section>
-
-<!-- Page 2: department -->
-<section class="page" id="pDept">
-  <div class="nameBox">
-    <label for="nameInput" data-t="yourName"></label>
-    <input id="nameInput" maxlength="20" autocomplete="off" enterkeyhint="done">
+  <div class="steps"><i class="on"></i><i></i><i></i></div>
+  <div class="hero">
+    <div class="coinLogo"><span></span></div>
+    <div class="title" id="gTitle">財神撒金幣</div>
+    <div class="subtitle" id="gSub">Coin Rush · Thần Tài rải vàng</div>
   </div>
-  <h1 data-t="chooseDept"></h1>
-  <p class="sub" data-t="chooseDeptSub"></p>
-  <div class="deptGrid" id="deptGrid"></div>
-  <button class="link" id="backLang" data-t="changeLang"></button>
+  <div class="langBox">
+    <div class="hint">請選擇語言 · Language · Ngôn ngữ</div>
+    <button class="gbtn" data-lang="zh">中文</button>
+    <button class="gbtn" data-lang="en" style="font-family:inherit;font-weight:700">English</button>
+    <button class="gbtn" data-lang="vi" style="font-family:inherit;font-weight:700">Tiếng Việt</button>
+  </div>
 </section>
 
-<!-- Page 3: play -->
+<!-- Page 2: name -->
+<section class="page" id="pName">
+  <div class="steps"><i class="on"></i><i class="on"></i><i></i></div>
+  <div class="head">
+    <div class="stepTxt" id="step2"></div>
+    <h1 class="h1" data-t="nameTitle"></h1>
+    <p class="lead" data-t="nameSub"></p>
+  </div>
+  <div class="field">
+    <label for="nameInput" data-t="yourName"></label>
+    <input id="nameInput" maxlength="20" autocomplete="off" enterkeyhint="next">
+    <div class="small" data-t="nameHint"></div>
+  </div>
+  <div class="bottom">
+    <button class="gbtn" id="nameNext" data-t="next"></button>
+    <button class="link" id="backLang" data-t="backLang"></button>
+  </div>
+</section>
+
+<!-- Page 3: department -->
+<section class="page" id="pDept">
+  <div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+  <div class="head" style="margin-top:20px">
+    <div class="stepTxt" id="step3"></div>
+    <h1 class="h1" data-t="deptTitle"></h1>
+    <p class="lead" data-t="deptSub"></p>
+  </div>
+  <div class="deptGrid" id="deptGrid"></div>
+  <div class="bottom">
+    <button class="link" id="backName" data-t="backName"></button>
+  </div>
+</section>
+
+<!-- Page 4: play -->
 <section class="page" id="pPlay">
   <div class="topbar">
     <div class="chip"><span class="dot"></span><span id="myDept"></span><span class="net" id="net"></span></div>
     <button class="smallBtn" id="changeDept" data-t="changeDept"></button>
+    <div class="timePill" id="timePill"><b id="tpNum"></b><span id="tpUnit"></span></div>
   </div>
   <div class="status" id="status"></div>
+  <div class="speedRow" id="speedRow"><b id="speedNum">0.0</b><span id="speedUnit"></span></div>
   <div class="timer" id="timer"></div>
-  <div class="tapWrap">
-    <button id="tap" class="disabled"><span class="label" id="tapLabel"></span><span class="cnt" id="tapCnt"></span></button>
+  <div class="tapWrap" id="tapWrap">
+    <div class="ring" id="ring">
+      <button id="tap" class="disabled"><span class="hole"></span><span class="side l">招</span><span class="side r">財</span><span class="label" id="tapLabel"></span><span class="cnt" id="tapCnt"></span></button>
+    </div>
+    <div class="combo" id="combo"></div>
+  </div>
+  <div class="levels" id="levels">
+    <div class="lvBars"><i></i><i></i><i></i><i></i></div>
+    <div class="lvNames"><span></span><span></span><span></span><span></span></div>
+    <div class="lvHint" id="lvHint"></div>
   </div>
   <div class="mycount" id="mycount"></div>
 </section>
@@ -123,24 +217,19 @@
   var CFG = window.GAME_CONFIG;
   var DEMO = /PASTE_/.test(CFG.firebase.apiKey) || /[?&]demo=1/.test(location.search);
   if (DEMO) document.getElementById('demoTag').style.display = 'block';
-  if (CFG.theme !== 'horse') {
-    document.title = '財神撒金幣 💰';
-    document.getElementById('gEmoji').textContent = '💰';
-    document.getElementById('gTitle').textContent = '財神撒金幣';
-    document.getElementById('gSub').textContent = 'Coin Rush · Thần Tài rải vàng';
-  }
+  document.title = '財神撒金幣';
 
   // ---------------- i18n ----------------
   var T = {
-    zh:{yourName:'你的名字',namePh:'例如：王小明',needName:'請先輸入名字',chooseDept:'選擇你的部門',chooseDeptSub:'幫自己的部門衝第一！',changeLang:'更換語言',changeDept:'更換部門',
+    zh:{speedLabel:'你的手速',unit:'下 / 秒',sec:'秒',left:'剩',combo:'連擊',lv0:'慢吞吞',lv1:'加把勁',lv2:'火力全開',lv3:'財神附體',nextHint:'再快一點就「{x}」！',maxHint:'財神附體！保持住！',peak:'最高手速 {x} 下/秒',step:'第 {n} 步，共 3 步',nameTitle:'你叫什麼名字？',nameSub:'結算時大螢幕會顯示這個名字，看看誰點最快！',nameHint:'最多 20 個字',next:'下一步',backLang:'返回選語言',deptTitle:'你是哪個部門？',deptSub:'點一下就加入，幫部門衝第一！',backName:'返回修改名字',tapShort:'狂點',yourName:'名字',namePh:'例如：王小明',needName:'請先輸入名字',chooseDept:'選擇你的部門',chooseDeptSub:'幫自己的部門衝第一！',changeLang:'更換語言',changeDept:'更換部門',
         waiting:'等待主持人開始…',waitingBtn:'等待主持人開始',getReady:'準備！',tap:'狂點！',timeLeft:'剩餘秒數',
         timeUp:'時間到！',seeScreen:'看大螢幕公布冠軍 🏆',youTapped:'你點了 {n} 下',tooFast:'太快了！超過的不算喔',
         netBad:'網路不穩，重試中…',roundOver:'本局已結束，等待下一局',locked:'比賽中不能更換部門'},
-    en:{yourName:'Your name',namePh:'e.g. Alex Wang',needName:'Please enter your name first',chooseDept:'Choose your department',chooseDeptSub:'Tap to help your team win!',changeLang:'Change language',changeDept:'Change dept.',
+    en:{speedLabel:'Your speed',unit:'taps / s',sec:'s',left:'',combo:'Combo',lv0:'Warming up',lv1:'Picking up',lv2:'On fire',lv3:'God of Wealth',nextHint:'Faster to reach \u201c{x}\u201d!',maxHint:'Max level! Keep it up!',peak:'Top speed {x} taps/s',step:'Step {n} of 3',nameTitle:'What\u2019s your name?',nameSub:'The big screen shows names in the results \u2014 see who taps fastest!',nameHint:'Up to 20 characters',next:'Next',backLang:'Back to language',deptTitle:'Which department are you in?',deptSub:'Tap once to join and help your team win!',backName:'Back to edit name',tapShort:'TAP',yourName:'Name',namePh:'e.g. Alex Wang',needName:'Please enter your name first',chooseDept:'Choose your department',chooseDeptSub:'Tap to help your team win!',changeLang:'Change language',changeDept:'Change dept.',
         waiting:'Waiting for the host to start…',waitingBtn:'Waiting for the host',getReady:'Get ready!',tap:'TAP!',timeLeft:'Seconds left',
         timeUp:'Time’s up!',seeScreen:'Watch the big screen for the winner 🏆',youTapped:'You tapped {n} times',tooFast:'Too fast! Extra taps don’t count',
         netBad:'Network unstable, retrying…',roundOver:'Round over — waiting for the next one',locked:'Can’t change department during the race'},
-    vi:{yourName:'Tên của bạn',namePh:'Ví dụ: Nguyễn Văn An',needName:'Vui lòng nhập tên trước',chooseDept:'Chọn bộ phận của bạn',chooseDeptSub:'Bấm thật nhanh để đội bạn thắng!',changeLang:'Đổi ngôn ngữ',changeDept:'Đổi bộ phận',
+    vi:{speedLabel:'Tốc độ của bạn',unit:'lần / giây',sec:'giây',left:'Còn',combo:'Combo',lv0:'Khởi động',lv1:'Tăng tốc',lv2:'Bùng cháy',lv3:'Thần Tài nhập',nextHint:'Nhanh hơn để đạt \u201c{x}\u201d!',maxHint:'Cấp cao nhất! Giữ vững!',peak:'Tốc độ cao nhất {x} lần/giây',step:'Bước {n} / 3',nameTitle:'Bạn tên là gì?',nameSub:'Màn hình lớn sẽ hiện tên khi tổng kết \u2014 xem ai bấm nhanh nhất!',nameHint:'Tối đa 20 ký tự',next:'Tiếp theo',backLang:'Quay lại chọn ngôn ngữ',deptTitle:'Bạn thuộc bộ phận nào?',deptSub:'Bấm một lần để tham gia, giúp đội bạn thắng!',backName:'Quay lại sửa tên',tapShort:'BẤM',yourName:'Tên',namePh:'Ví dụ: Nguyễn Văn An',needName:'Vui lòng nhập tên trước',chooseDept:'Chọn bộ phận của bạn',chooseDeptSub:'Bấm thật nhanh để đội bạn thắng!',changeLang:'Đổi ngôn ngữ',changeDept:'Đổi bộ phận',
         waiting:'Đang chờ người dẫn chương trình bắt đầu…',waitingBtn:'Đang chờ bắt đầu',getReady:'Chuẩn bị!',tap:'BẤM!',timeLeft:'Giây còn lại',
         timeUp:'Hết giờ!',seeScreen:'Xem màn hình lớn để biết đội vô địch 🏆',youTapped:'Bạn đã bấm {n} lần',tooFast:'Nhanh quá! Phần vượt không được tính',
         netBad:'Mạng không ổn định, đang thử lại…',roundOver:'Ván đã kết thúc — chờ ván tiếp theo',locked:'Không thể đổi bộ phận khi đang thi đấu'}
@@ -224,28 +313,36 @@
     var els = document.querySelectorAll('[data-t]');
     for (var i=0;i<els.length;i++) els[i].textContent = t(els[i].getAttribute('data-t'));
     var ni = document.getElementById('nameInput'); ni.placeholder = t('namePh'); if (!ni.value) ni.value = myName;
+    document.getElementById('step2').textContent = t('step',{n:2});
+    document.getElementById('step3').textContent = t('step',{n:3}) + (myName ? ' · ' + myName : '');
     document.documentElement.lang = lang==='en'?'en':lang==='vi'?'vi':'zh-Hant';
   }
   function buildDepts(){
     var g = document.getElementById('deptGrid'); g.innerHTML='';
     CFG.departments.forEach(function(d){
       var b = document.createElement('button');
-      b.className='deptBtn'; b.style.background=d.color; b.textContent=deptName(d);
-      b.onclick=function(){
-        var inp = document.getElementById('nameInput');
-        var nm = inp.value.replace(/\s+/g,' ').trim().slice(0,20);
-        if (!nm) { inp.classList.remove('err'); void inp.offsetWidth; inp.classList.add('err'); inp.focus(); flash(t('needName')); return; }
-        myName = nm; LS.set('hr_name', nm); inp.blur();
-        deptId=d.id; LS.set('hr_dept',deptId); enterPlay();
-      };
+      b.className='deptBtn';
+      var dot = document.createElement('i'); dot.style.background = d.color; b.appendChild(dot);
+      b.appendChild(document.createTextNode(deptName(d)));
+      b.onclick=function(){ deptId=d.id; LS.set('hr_dept',deptId); enterPlay(); };
       g.appendChild(b);
     });
   }
   var langBtns = document.querySelectorAll('[data-lang]');
   for (var li=0; li<langBtns.length; li++) {
-    langBtns[li].onclick = function(){ lang=this.getAttribute('data-lang'); LS.set('hr_lang',lang); buildDepts(); show('pDept'); };
+    langBtns[li].onclick = function(){ lang=this.getAttribute('data-lang'); LS.set('hr_lang',lang); show('pName'); };
   }
+  function submitName(){
+    var inp = document.getElementById('nameInput');
+    var nm = inp.value.replace(/\s+/g,' ').trim().slice(0,20);
+    if (!nm) { inp.classList.remove('err'); void inp.offsetWidth; inp.classList.add('err'); inp.focus(); flash(t('needName')); return; }
+    myName = nm; LS.set('hr_name', nm); inp.blur();
+    buildDepts(); show('pDept');
+  }
+  document.getElementById('nameNext').onclick = submitName;
+  document.getElementById('nameInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') submitName(); });
   document.getElementById('backLang').onclick = function(){ show('pLang'); };
+  document.getElementById('backName').onclick = function(){ show('pName'); };
   document.getElementById('changeDept').onclick = function(){
     var p = phase();
     if (p==='countdown' || p==='running') { flash(t('locked')); return; }
@@ -320,7 +417,7 @@
   }
 
   // ---------------- tapping ----------------
-  var recent = [];
+  var recent = [], combo = 0, lastTap = 0, spd = 0, peak = 0, shownCombo = 0;
   var tapBtn = document.getElementById('tap');
   function onTap(ev){
     ev.preventDefault();
@@ -332,6 +429,7 @@
     while (recent.length && now - recent[0] > 1000) recent.shift();
     if (recent.length >= CFG.maxTapsPerSec) { flash(t('tooFast')); return; }
     recent.push(now);
+    combo = (now - lastTap < 450) ? combo + 1 : 1; lastTap = now;
     count++; saveProgress();
     tapBtn.classList.add('hit');
     setTimeout(function(){ tapBtn.classList.remove('hit'); }, 60);
@@ -348,30 +446,58 @@
   }
 
   // ---------------- render ----------------
+  var $ = function(id){ return document.getElementById(id); };
+  function levelOf(v){ return v >= 10 ? 3 : v >= 7 ? 2 : v >= 4 ? 1 : 0; }
+  function show2(id, on, disp){ $(id).style.display = on ? (disp || 'flex') : 'none'; }
   function render(){
     if (playing) {
-      var p = phase(), d = deptById(deptId);
-      var st = document.getElementById('status'), tm = document.getElementById('timer');
-      var lbl = document.getElementById('tapLabel'), cnt = document.getElementById('tapCnt'), my = document.getElementById('mycount');
+      var p = phase(), d = deptById(deptId), now = performance.now();
+      // speed: taps counted in the last second, smoothed
+      var raw = 0; for (var i = recent.length - 1; i >= 0 && now - recent[i] <= 1000; i--) raw++;
+      spd += (raw - spd) * 0.15; if (spd < 0.05) spd = 0;
+      if (p === 'running' && raw > peak) peak = raw;
+      if (now - lastTap > 600) combo = 0;
+      var frac = Math.min(1, spd / CFG.maxTapsPerSec);
+      document.documentElement.style.setProperty('--p', p === 'running' ? frac.toFixed(3) : '0');
+
+      var st = $('status'), tm = $('timer'), lbl = $('tapLabel'), cnt = $('tapCnt'), my = $('mycount');
+      var running = p === 'running';
+      show2('speedRow', running); show2('levels', running); show2('timePill', running || p === 'countdown');
+      $('changeDept').style.display = (running || p === 'countdown') ? 'none' : '';
       var dis = true;
       if (p === 'waiting') {
         st.textContent = t('waiting'); tm.textContent = ''; lbl.textContent = t('waitingBtn'); cnt.textContent = ''; my.textContent = '';
+        peak = 0;
       } else if (p === 'countdown') {
         st.textContent = t('getReady'); tm.textContent = Math.ceil((game.startAt - serverNow())/1000);
         lbl.textContent = t('getReady'); cnt.textContent = ''; my.textContent = '';
-      } else if (p === 'running') {
+        $('tpNum').textContent = Math.round((game.endsAt - game.startAt)/1000); $('tpUnit').textContent = t('sec');
+      } else if (running) {
         dis = false;
-        st.textContent = t('timeLeft'); tm.textContent = Math.max(0, Math.ceil((game.endsAt - serverNow())/1000));
-        lbl.textContent = t('tap'); cnt.textContent = count; my.textContent = t('youTapped',{n:count});
+        st.textContent = t('speedLabel'); tm.textContent = '';
+        $('speedNum').textContent = spd.toFixed(1); $('speedUnit').textContent = t('unit');
+        $('tpNum').textContent = Math.max(0, Math.ceil((game.endsAt - serverNow())/1000)); $('tpUnit').textContent = t('sec');
+        lbl.textContent = t('tapShort'); cnt.textContent = count; my.textContent = '';
+        var lv = levelOf(spd), bars = document.querySelectorAll('.lvBars i'), names = document.querySelectorAll('.lvNames span');
+        for (var k = 0; k < 4; k++) { bars[k].classList.toggle('on', k <= lv && spd > 0.3); names[k].textContent = t('lv' + k); names[k].classList.toggle('cur', k === lv && spd > 0.3); }
+        $('lvHint').textContent = lv < 3 ? t('nextHint', {x: t('lv' + (lv + 1))}) : t('maxHint');
       } else if (p === 'over') {
         st.textContent = t('roundOver'); tm.textContent = ''; lbl.textContent = t('roundOver'); cnt.textContent = ''; my.textContent = '';
       } else {
-        st.textContent = t('timeUp'); tm.textContent = '0';
-        lbl.textContent = t('timeUp'); cnt.textContent = count; my.textContent = t('youTapped',{n:count}) + ' · ' + t('seeScreen');
+        st.textContent = t('timeUp'); tm.textContent = '';
+        lbl.textContent = t('timeUp'); cnt.textContent = count;
+        my.textContent = t('youTapped',{n:count}) + (peak ? ' · ' + t('peak',{x:peak}) : '') + ' · ' + t('seeScreen');
       }
-      tapBtn.classList.toggle('disabled', dis);
-      if (netBad && p !== 'running') my.textContent = t('netBad');
-      document.getElementById('myDept').textContent = deptName(d) + (myName ? ' · ' + myName : '');
+      // combo badge
+      var cb = $('combo');
+      if (running && combo >= 5) {
+        cb.textContent = t('combo') + ' \u00d7' + combo; cb.classList.add('show');
+        if (combo !== shownCombo && combo % 10 === 0) { cb.classList.add('pop'); setTimeout(function(){ cb.classList.remove('pop'); }, 120); }
+      } else { cb.classList.remove('show'); }
+      shownCombo = combo;
+      $('tap').classList.toggle('disabled', dis);
+      if (netBad && !running) my.textContent = t('netBad');
+      $('myDept').textContent = deptName(d) + (myName ? ' \u00b7 ' + myName : '');
       document.documentElement.style.setProperty('--dept', d ? d.color : '#ffd25e');
     }
     requestAnimationFrame(render);
