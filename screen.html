@@ -213,6 +213,13 @@
   .qrmeta b{color:#FFF3D6;font-size:2vh}
   .qrcard .url{margin-top:0;font-size:1.2vh}
   .kingLine{margin-top:2vh;display:inline-block;padding:1vh 2vw;border-radius:2vh;background:#FF8A1F;border:2px solid #FFE08A;color:#3D0306;font-family:"Noto Serif TC",serif;font-weight:900;font-size:3.6vh}
+  /* ===== 結算畫面：獨立乾淨背景 ===== */
+  #ovChamp{background:radial-gradient(ellipse at 50% 35%, #B3171F 0%, #6E0A10 55%, #2E0306 100%)}
+  #ovChamp::before,#ovSum::before{content:"";position:absolute;inset:1.4vh;border:.35vh solid #E9B949;border-radius:2.4vh;pointer-events:none}
+  #ovChamp::after,#ovSum::after{content:"";position:absolute;inset:2.2vh;border:1px solid rgba(233,185,73,.45);border-radius:2vh;pointer-events:none}
+  #ovSum{padding:4.4vh 3.6vw 4vh}
+  #ovChamp.show ~ #hostbar{display:none}
+  .champ .hintD{margin-top:3vh;font-size:2vh;color:#F3D9A4;letter-spacing:.2vh}
 </style>
 </head>
 <body>
@@ -478,7 +485,8 @@ function showChamp(on){
         <div class="sub">${ds.map(d => d.en + ' · ' + d.vi).join(' ／ ')}</div>
         <div class="score">平均 ${(fa[ids[0]] || 0).toFixed(1)} 下 / 人 · avg taps per phone</div>
         <div class="sub">${ids.map(id => `${fp[id] || 0} 人參加 · 總 ${fin[id] || 0} 下`).join(' ／ ')}</div>
-        ${kingLine()}`;
+        ${kingLine()}
+        <div class="hintD">按 D 查看每個人的結算明細 · Press D for full results</div>`;
     }
     $('ovChamp').classList.add('show');
     confetti();
