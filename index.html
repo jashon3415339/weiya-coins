@@ -70,6 +70,8 @@
            font-family:var(--serif);font-weight:900;font-size:21px;letter-spacing:1px;
            box-shadow:inset 0 0 0 4px rgba(233,185,73,.18),0 4px 0 #3D0306;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 8px}
   .deptBtn:active{transform:scale(.96)}
+  .deptGrid.many{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .deptGrid.many .deptBtn{height:62px;font-size:18px;letter-spacing:0;gap:6px;padding:0 4px}
   .deptBtn i{flex:none;width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 2px var(--gold3)}
 
   /* page 4: play */
@@ -221,18 +223,18 @@
 
   // ---------------- i18n ----------------
   var T = {
-    zh:{speedLabel:'你的手速',unit:'下 / 秒',sec:'秒',left:'剩',combo:'連擊',lv0:'慢吞吞',lv1:'加把勁',lv2:'火力全開',lv3:'財神附體',nextHint:'再快一點就「{x}」！',maxHint:'財神附體！保持住！',peak:'最高手速 {x} 下/秒',step:'第 {n} 步，共 3 步',nameTitle:'你叫什麼名字？',nameSub:'結算時大螢幕會顯示這個名字，看看誰點最快！',nameHint:'最多 20 個字',next:'下一步',backLang:'返回選語言',deptTitle:'你是哪個部門？',deptSub:'點一下就加入，幫部門衝第一！',backName:'返回修改名字',tapShort:'狂點',yourName:'名字',namePh:'例如：王小明',needName:'請先輸入名字',chooseDept:'選擇你的部門',chooseDeptSub:'幫自己的部門衝第一！',changeLang:'更換語言',changeDept:'更換部門',
+    zh:{speedLabel:'你的手速',unit:'下 / 秒',sec:'秒',left:'剩',combo:'連擊',lv0:'慢吞吞',lv1:'加把勁',lv2:'火力全開',lv3:'財神附體',nextHint:'再快一點就「{x}」！',maxHint:'財神附體！保持住！',peak:'最高手速 {x} 下/秒',step:'第 {n} 步，共 3 步',nameTitle:'你叫什麼名字？',nameSub:'結算時大螢幕會顯示這個名字，看看誰點最快！',nameHint:'最多 20 個字',next:'下一步',backLang:'返回選語言',deptTitle:'你坐哪一桌？',deptSub:'選你的桌號，幫你這桌衝第一！',backName:'返回修改名字',tapShort:'狂點',yourName:'名字',namePh:'例如：王小明',needName:'請先輸入名字',chooseDept:'選擇你的部門',chooseDeptSub:'幫自己的部門衝第一！',changeLang:'更換語言',changeDept:'更換桌號',
         waiting:'等待主持人開始…',waitingBtn:'等待主持人開始',getReady:'準備！',tap:'狂點！',timeLeft:'剩餘秒數',
         timeUp:'時間到！',seeScreen:'看大螢幕公布冠軍 🏆',youTapped:'你點了 {n} 下',tooFast:'太快了！超過的不算喔',
-        netBad:'網路不穩，重試中…',roundOver:'本局已結束，等待下一局',locked:'比賽中不能更換部門'},
-    en:{speedLabel:'Your speed',unit:'taps / s',sec:'s',left:'',combo:'Combo',lv0:'Warming up',lv1:'Picking up',lv2:'On fire',lv3:'God of Wealth',nextHint:'Faster to reach \u201c{x}\u201d!',maxHint:'Max level! Keep it up!',peak:'Top speed {x} taps/s',step:'Step {n} of 3',nameTitle:'What\u2019s your name?',nameSub:'The big screen shows names in the results \u2014 see who taps fastest!',nameHint:'Up to 20 characters',next:'Next',backLang:'Back to language',deptTitle:'Which department are you in?',deptSub:'Tap once to join and help your team win!',backName:'Back to edit name',tapShort:'TAP',yourName:'Name',namePh:'e.g. Alex Wang',needName:'Please enter your name first',chooseDept:'Choose your department',chooseDeptSub:'Tap to help your team win!',changeLang:'Change language',changeDept:'Change dept.',
+        netBad:'網路不穩，重試中…',roundOver:'本局已結束，等待下一局',locked:'比賽中不能更換桌號'},
+    en:{speedLabel:'Your speed',unit:'taps / s',sec:'s',left:'',combo:'Combo',lv0:'Warming up',lv1:'Picking up',lv2:'On fire',lv3:'God of Wealth',nextHint:'Faster to reach \u201c{x}\u201d!',maxHint:'Max level! Keep it up!',peak:'Top speed {x} taps/s',step:'Step {n} of 3',nameTitle:'What\u2019s your name?',nameSub:'The big screen shows names in the results \u2014 see who taps fastest!',nameHint:'Up to 20 characters',next:'Next',backLang:'Back to language',deptTitle:'Which table are you at?',deptSub:'Pick your table number and help it win!',backName:'Back to edit name',tapShort:'TAP',yourName:'Name',namePh:'e.g. Alex Wang',needName:'Please enter your name first',chooseDept:'Choose your department',chooseDeptSub:'Tap to help your team win!',changeLang:'Change language',changeDept:'Change table',
         waiting:'Waiting for the host to start…',waitingBtn:'Waiting for the host',getReady:'Get ready!',tap:'TAP!',timeLeft:'Seconds left',
         timeUp:'Time’s up!',seeScreen:'Watch the big screen for the winner 🏆',youTapped:'You tapped {n} times',tooFast:'Too fast! Extra taps don’t count',
-        netBad:'Network unstable, retrying…',roundOver:'Round over — waiting for the next one',locked:'Can’t change department during the race'},
-    vi:{speedLabel:'Tốc độ của bạn',unit:'lần / giây',sec:'giây',left:'Còn',combo:'Combo',lv0:'Khởi động',lv1:'Tăng tốc',lv2:'Bùng cháy',lv3:'Thần Tài nhập',nextHint:'Nhanh hơn để đạt \u201c{x}\u201d!',maxHint:'Cấp cao nhất! Giữ vững!',peak:'Tốc độ cao nhất {x} lần/giây',step:'Bước {n} / 3',nameTitle:'Bạn tên là gì?',nameSub:'Màn hình lớn sẽ hiện tên khi tổng kết \u2014 xem ai bấm nhanh nhất!',nameHint:'Tối đa 20 ký tự',next:'Tiếp theo',backLang:'Quay lại chọn ngôn ngữ',deptTitle:'Bạn thuộc bộ phận nào?',deptSub:'Bấm một lần để tham gia, giúp đội bạn thắng!',backName:'Quay lại sửa tên',tapShort:'BẤM',yourName:'Tên',namePh:'Ví dụ: Nguyễn Văn An',needName:'Vui lòng nhập tên trước',chooseDept:'Chọn bộ phận của bạn',chooseDeptSub:'Bấm thật nhanh để đội bạn thắng!',changeLang:'Đổi ngôn ngữ',changeDept:'Đổi bộ phận',
+        netBad:'Network unstable, retrying…',roundOver:'Round over — waiting for the next one',locked:'Can’t change table during the race'},
+    vi:{speedLabel:'Tốc độ của bạn',unit:'lần / giây',sec:'giây',left:'Còn',combo:'Combo',lv0:'Khởi động',lv1:'Tăng tốc',lv2:'Bùng cháy',lv3:'Thần Tài nhập',nextHint:'Nhanh hơn để đạt \u201c{x}\u201d!',maxHint:'Cấp cao nhất! Giữ vững!',peak:'Tốc độ cao nhất {x} lần/giây',step:'Bước {n} / 3',nameTitle:'Bạn tên là gì?',nameSub:'Màn hình lớn sẽ hiện tên khi tổng kết \u2014 xem ai bấm nhanh nhất!',nameHint:'Tối đa 20 ký tự',next:'Tiếp theo',backLang:'Quay lại chọn ngôn ngữ',deptTitle:'Bạn ngồi bàn số mấy?',deptSub:'Chọn số bàn và giúp bàn bạn thắng!',backName:'Quay lại sửa tên',tapShort:'BẤM',yourName:'Tên',namePh:'Ví dụ: Nguyễn Văn An',needName:'Vui lòng nhập tên trước',chooseDept:'Chọn bộ phận của bạn',chooseDeptSub:'Bấm thật nhanh để đội bạn thắng!',changeLang:'Đổi ngôn ngữ',changeDept:'Đổi bàn',
         waiting:'Đang chờ người dẫn chương trình bắt đầu…',waitingBtn:'Đang chờ bắt đầu',getReady:'Chuẩn bị!',tap:'BẤM!',timeLeft:'Giây còn lại',
         timeUp:'Hết giờ!',seeScreen:'Xem màn hình lớn để biết đội vô địch 🏆',youTapped:'Bạn đã bấm {n} lần',tooFast:'Nhanh quá! Phần vượt không được tính',
-        netBad:'Mạng không ổn định, đang thử lại…',roundOver:'Ván đã kết thúc — chờ ván tiếp theo',locked:'Không thể đổi bộ phận khi đang thi đấu'}
+        netBad:'Mạng không ổn định, đang thử lại…',roundOver:'Ván đã kết thúc — chờ ván tiếp theo',locked:'Không thể đổi bàn khi đang thi đấu'}
   };
   var LS = {
     get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},
@@ -318,7 +320,7 @@
     document.documentElement.lang = lang==='en'?'en':lang==='vi'?'vi':'zh-Hant';
   }
   function buildDepts(){
-    var g = document.getElementById('deptGrid'); g.innerHTML='';
+    var g = document.getElementById('deptGrid'); g.innerHTML=''; g.classList.toggle('many', CFG.departments.length > 8);
     CFG.departments.forEach(function(d){
       var b = document.createElement('button');
       b.className='deptBtn';

@@ -219,6 +219,18 @@
   #ovChamp::after,#ovSum::after{content:"";position:absolute;inset:2.2vh;border:1px solid rgba(233,185,73,.45);border-radius:2vh;pointer-events:none}
   #ovSum{padding:4.4vh 3.6vw 4vh}
   #ovChamp.show ~ #hostbar{display:none}
+  /* 很多組（例如 14 桌）時縮小字 */
+  body.many .pot{font-size:2.2vh;margin:0 2%}
+  body.many .cname span{display:none}
+  body.many .cname small{font-size:1.25vh}
+  body.many .cval{font-size:2.8vh}
+  body.many .cspd{font-size:1.3vh}
+  body.many .ccol.rank1 .cval::before{font-size:2.6vh}
+  body.many .cols{gap:.5vw}
+  body.many .stack{left:12%;right:12%}
+  body.many .colHead .dn{font-size:2.6vh}
+  body.many .colHead .av{font-size:2.8vh}
+  body.many .row{font-size:1.7vh;height:2.6vh}
   .champ .hintD{margin-top:3vh;font-size:2vh;color:#F3D9A4;letter-spacing:.2vh}
 </style>
 </head>
@@ -256,7 +268,7 @@
 
 <div id="ovSum">
   <div class="sumHead">
-    <h2>📋 結算明細 <small>Results · Kết quả — 排名依部門平均每人點擊數</small></h2>
+    <h2>📋 結算明細 <small>Results · Kết quả — 排名依每桌平均每人點擊數</small></h2>
     <div class="sumBtns"><button id="bCsv">⬇ 下載 CSV</button><button id="bSumClose">✕ 關閉 (D)</button></div>
   </div>
   <div class="mvp" id="mvp"></div>
@@ -339,6 +351,7 @@ if (THEME === 'coins') {
   $('title').innerHTML = '財神撒金幣 <small class="tag">憑實力撒金幣 · 手速決定財運</small>';
   const tr = $('track');
   tr.classList.add('coins');
+  if (depts.length > 8) document.body.classList.add('many');
   tr.insertAdjacentHTML('afterbegin', `<div class="banner"><span class="lan">🏮</span> 🧧 財神到・金幣滿滿 🧧 <span class="lan">🏮</span></div>
     <div class="cols" id="cols"><div class="goal"><span>🎯 目標 Goal</span></div></div>`);
   for (const d of depts) {
@@ -346,7 +359,7 @@ if (THEME === 'coins') {
     el.className = 'ccol';
     el.style.setProperty('--c', d.color);
     el.innerHTML = `<div class="cstage"><div class="stack"></div><div class="cval"><i class="cspd"></i>0.0</div></div>
-      <div class="pot">${d.zh}</div>
+      <div class="pot">${d.short || d.zh}</div>
       <div class="cname"><span>${d.en} · ${d.vi}</span><small>0 人 · 總 0 下</small></div>`;
     $('cols').appendChild(el);
     lanes[d.id] = { el, stage: el.querySelector('.cstage'), stack: el.querySelector('.stack'), val: el.querySelector('.cval'), spd: el.querySelector('.cspd'),
@@ -422,7 +435,7 @@ function render(){
         L.stack.style.height = px + 'px';
         L.val.style.bottom = px + 'px';
         L.val.lastChild.nodeValue = shown[d.id].toFixed(1);
-        L.spd.textContent = p === 'running' && speeds[d.id] > 0 ? '手速 ' + speeds[d.id].toFixed(1) + ' 下/秒' : '';
+        L.spd.textContent = p === 'running' && speeds[d.id] > 0 ? (depts.length > 8 ? speeds[d.id].toFixed(1) + '/秒' : '手速 ' + speeds[d.id].toFixed(1) + ' 下/秒') : '';
         L.top = px;
       } else {
         L.horse.style.left = (pos * 100) + '%';
@@ -449,7 +462,7 @@ function render(){
     const secs = p === 'running' ? Math.ceil((game.endsAt - now) / 1000) : p === 'countdown' ? Math.round(dur / 1000) : p === 'waiting' ? CFG.durationSec : 0;
     $('clock').textContent = Math.max(0, secs);
     $('clockLab').textContent = { waiting: '等待開始 · Waiting', countdown: '準備 · Get ready', running: '秒 · seconds left', counting: '統計中… · Counting', ended: '比賽結束 · Finished' }[p];
-    $('trackMsg').textContent = p === 'waiting' ? '請大家掃 QR Code、選語言和部門，等主持人按開始！比的是部門「平均每人點擊數」' : p === 'counting' ? '時間到！統計最後的點擊中…' : '';
+    $('trackMsg').textContent = p === 'waiting' ? '請大家掃 QR Code，選語言、輸入名字和桌號，等主持人按開始！比的是每桌「平均每人點擊數」' : p === 'counting' ? '時間到！統計最後的點擊中…' : '';
 
     // countdown overlay
     $('ovCd').classList.toggle('show', p === 'countdown');
@@ -581,18 +594,18 @@ function renderSum(){
   $('mvp').innerHTML = all.length ? all.slice(0, 3).map((p, i) =>
     `<div><b>${medal(i)}</b><span>個人第 ${i + 1} 名 · <span style="color:${p.d.color}">${esc(p.d.zh)}</span> ${esc(p.name)}</span><em>${p.c} 下</em></div>`).join('')
     : '<div><span>還沒有人點擊 · No taps yet</span></div>';
-  $('sumGrid').style.gridTemplateColumns = `repeat(${Math.min(depts.length, 6)}, minmax(0, 1fr))`;
+  $('sumGrid').style.gridTemplateColumns = `repeat(${depts.length > 6 ? Math.ceil(depts.length / 2) : depts.length}, minmax(0, 1fr))`;
   $('sumGrid').innerHTML = order.map((d, r) => `
     <div class="col" style="--c:${d.color}">
       <div class="colHead">
-        <div class="rk">部門第 ${r + 1} 名</div>
+        <div class="rk">第 ${r + 1} 名</div>
         <div class="dn">${esc(d.zh)}</div>
         <div class="av">${(avgs[d.id] || 0).toFixed(1)} <small>平均下/人</small></div>
         <div class="meta">${players[d.id] || 0} 人 · 總 ${totals[d.id] || 0} 下</div>
       </div>
       <div class="list">${ppl[d.id].length ? ppl[d.id].map((p, i) =>
         `<div class="row${i < 3 ? ' top' : ''}"><span class="no">${medal(i)}</span><span class="nm">${esc(p.name)}</span><span class="tp">${p.c}</span></div>`).join('')
-        : '<div class="empty">沒有人參加</div>'}</div>
+        : '<div class="empty">沒有人</div>'}</div>
     </div>`).join('');
 }
 // lists longer than the screen scroll slowly by themselves
@@ -613,7 +626,7 @@ function toggleSum(on){
 }
 function downloadCsv(){
   const ppl = people();
-  const rows = [['部門', 'Department', '名字', '點擊數', '部門人數', '部門總點擊', '部門平均']];
+  const rows = [['桌號', 'Table', '名字', '點擊數', '該桌人數', '該桌總點擊', '該桌平均']];
   for (const d of depts.slice().sort((a, b) => avgs[b.id] - avgs[a.id]))
     for (const p of ppl[d.id]) rows.push([d.zh, d.en, p.name, p.c, players[d.id], totals[d.id], avgs[d.id]]);
   const csv = '\ufeff' + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');

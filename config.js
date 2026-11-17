@@ -35,13 +35,22 @@ window.GAME_CONFIG = {
   // 手機入口網址。留空 = 自動用大螢幕所在的網址（同一個資料夾的 index.html）
   joinUrl: "",
 
-  // 部門（假資料，之後可改）。color 是賽道顏色
+  // 分組：以「桌」為單位（目前 14 桌，不夠或太多就增減這裡的行數）
+  // id 只能用英文小寫、數字、底線；short 是大螢幕金幣柱下方的短名稱；color 是顏色
   departments: [
-    { id: "sales",  zh: "業務部",   en: "Sales",       vi: "Kinh doanh",         color: "#ff5a5f" },
-    { id: "prod",   zh: "生產部",   en: "Production",  vi: "Sản xuất",           color: "#ffb400" },
-    { id: "qc",     zh: "品管部",   en: "Quality",     vi: "Quản lý chất lượng", color: "#00a699" },
-    { id: "rd",     zh: "研發部",   en: "R&D",         vi: "Nghiên cứu & PT",    color: "#4a90e2" },
-    { id: "admin",  zh: "管理部",   en: "Admin",       vi: "Hành chính",         color: "#9b59b6" },
-    { id: "wh",     zh: "倉儲物流", en: "Logistics",   vi: "Kho vận",            color: "#7cb342" }
+    { id: "t01", zh: "第1桌", short: "1桌", en: "Table 1", vi: "Bàn 1", color: "#E23636" },
+    { id: "t02", zh: "第2桌", short: "2桌", en: "Table 2", vi: "Bàn 2", color: "#E27F36" },
+    { id: "t03", zh: "第3桌", short: "3桌", en: "Table 3", vi: "Bàn 3", color: "#E2C936" },
+    { id: "t04", zh: "第4桌", short: "4桌", en: "Table 4", vi: "Bàn 4", color: "#B1E236" },
+    { id: "t05", zh: "第5桌", short: "5桌", en: "Table 5", vi: "Bàn 5", color: "#67E236" },
+    { id: "t06", zh: "第6桌", short: "6桌", en: "Table 6", vi: "Bàn 6", color: "#36E24E" },
+    { id: "t07", zh: "第7桌", short: "7桌", en: "Table 7", vi: "Bàn 7", color: "#36E298" },
+    { id: "t08", zh: "第8桌", short: "8桌", en: "Table 8", vi: "Bàn 8", color: "#36E2E2" },
+    { id: "t09", zh: "第9桌", short: "9桌", en: "Table 9", vi: "Bàn 9", color: "#3698E2" },
+    { id: "t10", zh: "第10桌", short: "10桌", en: "Table 10", vi: "Bàn 10", color: "#364EE2" },
+    { id: "t11", zh: "第11桌", short: "11桌", en: "Table 11", vi: "Bàn 11", color: "#6736E2" },
+    { id: "t12", zh: "第12桌", short: "12桌", en: "Table 12", vi: "Bàn 12", color: "#B136E2" },
+    { id: "t13", zh: "第13桌", short: "13桌", en: "Table 13", vi: "Bàn 13", color: "#E236C9" },
+    { id: "t14", zh: "第14桌", short: "14桌", en: "Table 14", vi: "Bàn 14", color: "#E2367F" }
   ]
 };
