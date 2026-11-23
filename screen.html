@@ -297,6 +297,7 @@
 </div>
 
 <script src="config.js"></script>
+<script src="../weiya-show/festive.js"></script>
 <script type="module">
 const CFG = window.GAME_CONFIG;
 const DEMO = /PASTE_/.test(CFG.firebase.apiKey) || /[?&]demo=1/.test(location.search);
@@ -474,8 +475,22 @@ function render(){
       B.setGame({ ...game, state: 'ended', winners: winners(), totals, players, avgs }).catch(e => { console.error(e); ending = false; });
     }
     showChamp(p === 'ended');
+    sounds(p, now);
   }
   requestAnimationFrame(render);
+}
+
+// ================= 音效：喜慶過年風（weiya-show/festive.js） =================
+// 倒數每秒一聲鼓、開始「哐」一聲鑼、最後 5 秒木魚、時間到大鑼、冠軍出爐鑼鼓嗩吶加鞭炮
+let sndPhase = null, sndSec = null;
+const SFX = (n, ...a) => { const F = window.FestiveAudio; if (F) try { F.sfx[n](...a); } catch (e) {} };
+function sounds(p, now) {
+  if (sndPhase === null) { sndPhase = p; return; }   // 剛打開頁面不出聲
+  if (p === 'countdown') { const n = Math.ceil((game.startAt - now) / 1000); if (n !== sndSec && n <= 5) { sndSec = n; SFX('drum'); } }
+  if (p === 'running') { const s = Math.ceil((game.endsAt - now) / 1000); if (sndPhase !== 'running') { SFX('start'); sndSec = null; } else if (s <= 5 && s !== sndSec) { sndSec = s; SFX('tick'); } }
+  if (p === 'counting' && sndPhase === 'running') SFX('gong');
+  if (p === 'ended' && sndPhase !== 'ended') { SFX('fanfare'); setTimeout(() => SFX('firecrackers', 3), 900); }
+  sndPhase = p;
 }
 
 let champShown = false;
