@@ -475,21 +475,31 @@ function render(){
       B.setGame({ ...game, state: 'ended', winners: winners(), totals, players, avgs }).catch(e => { console.error(e); ending = false; });
     }
     showChamp(p === 'ended');
-    sounds(p, now);
+    sounds(p, now, avgs[order[0]] > 0 ? order[0] : null);
   }
   requestAnimationFrame(render);
 }
 
 // ================= 音效：喜慶過年風（weiya-show/festive.js） =================
-// 倒數每秒一聲鼓、開始「哐」一聲鑼、最後 5 秒木魚、時間到大鑼、冠軍出爐鑼鼓嗩吶加鞭炮
-let sndPhase = null, sndSec = null;
+// 倒數每秒一聲鼓、開始「哐」一聲鑼、最後 10 秒音樂加快、最後 5 秒木魚、時間到大鑼、冠軍出爐鑼鼓嗩吶加鞭炮
+// 嵌在主持大螢幕裡時，背景音樂由大螢幕依這些事件切換（hook）
+let sndPhase = null, sndSec = null, sndLead = null, sndLast10 = false;
 const SFX = (n, ...a) => { const F = window.FestiveAudio; if (F) try { F.sfx[n](...a); } catch (e) {} };
-function sounds(p, now) {
+const hook = (evt) => { try { if (window.parent !== window && typeof window.parent.WeiyaHook === 'function') window.parent.WeiyaHook('coins', evt); } catch (e) {} };
+function sounds(p, now, lead) {
   if (sndPhase === null) { sndPhase = p; return; }   // 剛打開頁面不出聲
-  if (p === 'countdown') { const n = Math.ceil((game.startAt - now) / 1000); if (n !== sndSec && n <= 5) { sndSec = n; SFX('drum'); } }
-  if (p === 'running') { const s = Math.ceil((game.endsAt - now) / 1000); if (sndPhase !== 'running') { SFX('start'); sndSec = null; } else if (s <= 5 && s !== sndSec) { sndSec = s; SFX('tick'); } }
-  if (p === 'counting' && sndPhase === 'running') SFX('gong');
-  if (p === 'ended' && sndPhase !== 'ended') { SFX('fanfare'); setTimeout(() => SFX('firecrackers', 3), 900); }
+  if (p === 'countdown') { if (sndPhase !== 'countdown') hook('countdown'); const n = Math.ceil((game.startAt - now) / 1000); if (n !== sndSec && n <= 5) { sndSec = n; SFX('drum'); } }
+  if (p === 'running') {
+    const s = Math.ceil((game.endsAt - now) / 1000);
+    if (sndPhase !== 'running') { SFX('start'); hook('start'); sndSec = null; sndLast10 = false; sndLead = lead; }
+    else {
+      if (s <= 10 && !sndLast10) { sndLast10 = true; hook('last10'); }
+      if (s <= 5 && s !== sndSec) { sndSec = s; SFX('tick'); }
+      if (lead && lead !== sndLead) { sndLead = lead; hook('lead'); }
+    }
+  }
+  if (p === 'counting' && sndPhase === 'running') { SFX('gong'); hook('end'); }
+  if (p === 'ended' && sndPhase !== 'ended') { SFX('fanfare'); setTimeout(() => SFX('firecrackers', 3), 900); hook('champion'); }
   sndPhase = p;
 }
 
