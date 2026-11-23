@@ -246,6 +246,14 @@
   function t(k,vars){var s=(T[lang]||T.zh)[k]||k; if(vars) for(var x in vars) s=s.replace('{'+x+'}',vars[x]); return s;}
   function deptById(id){for(var i=0;i<CFG.departments.length;i++) if(CFG.departments[i].id===id) return CFG.departments[i]; return null;}
   function deptName(d){return d ? (d[lang]||d.zh) : '';}
+  // 桌上的 QR Code 網址帶桌號（例：?table=5）→ 輸入名字後直接進第 5 桌，不用再選；開賽前還是可以按「更換桌號」
+  var URL_DEPT = (function(){
+    var m = /[?&]table=([^&#]+)/.exec(location.search); if (!m) return null;
+    var v = decodeURIComponent(m[1]).trim(), n = parseInt(v, 10);
+    if (deptById(v)) return v;
+    if (n >= 1 && n <= CFG.departments.length) return CFG.departments[n-1].id;
+    return null;
+  })();
 
   // ---------------- device id ----------------
   var dev = LS.get('hr_dev');
@@ -339,6 +347,7 @@
     var nm = inp.value.replace(/\s+/g,' ').trim().slice(0,20);
     if (!nm) { inp.classList.remove('err'); void inp.offsetWidth; inp.classList.add('err'); inp.focus(); flash(t('needName')); return; }
     myName = nm; LS.set('hr_name', nm); inp.blur();
+    if (URL_DEPT) { deptId = URL_DEPT; LS.set('hr_dept', deptId); enterPlay(); return; }
     buildDepts(); show('pDept');
   }
   document.getElementById('nameNext').onclick = submitName;
